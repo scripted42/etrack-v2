@@ -27,6 +27,7 @@
     "apexcharts": "4.3.0",
     "axios": "^1.12.2",
     "pinia": "2.3.0",
+    "qrcode": "^1.5.4",
     "vee-validate": "4.15.0",
     "vite-plugin-static-copy": "^3.1.1",
     "vite-plugin-vuetify": "2.0.4",

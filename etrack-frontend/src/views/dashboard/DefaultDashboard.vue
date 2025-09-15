@@ -142,7 +142,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import apiService from '@/services/api';
+import api from '@/services/api';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import type { User, AuditLog } from '@/types/user';
 
@@ -160,7 +160,7 @@ const breadcrumbs = ref([
 
 const loading = ref(false);
 const statistics = ref([
-  { title: 'Total Pengguna', value: 0, icon: 'mdi-account-group', color: 'primary' },
+  { title: 'Total Pengguna', value: 0, icon: 'mdi-account-multiple', color: 'primary' },
   { title: 'Siswa Aktif', value: 0, icon: 'mdi-school', color: 'success' },
   { title: 'Pegawai Aktif', value: 0, icon: 'mdi-briefcase', color: 'info' },
   { title: 'Login Hari Ini', value: 0, icon: 'mdi-login', color: 'warning' }
@@ -215,22 +215,15 @@ const donutSeries = computed(() =>
 const loadDashboardData = async () => {
   loading.value = true;
   try {
-    const [statsResponse, chartResponse] = await Promise.all([
-      apiService.getDashboardStatistics(),
-      apiService.getChartData()
-    ]);
+    const statsResponse = await api.get('/dashboard/statistics');
 
-    if (statsResponse.success) {
-      const data = statsResponse.data;
+    if (statsResponse.data.success) {
+      const data = statsResponse.data.data;
       statistics.value[0].value = data.total_users;
       statistics.value[1].value = data.total_students;
       statistics.value[2].value = data.total_employees;
-      statistics.value[3].value = data.login_stats.today;
-      recentActivities.value = data.recent_activities;
-    }
-
-    if (chartResponse.success) {
-      Object.assign(chartData, chartResponse.data);
+      statistics.value[3].value = data.recent_activities?.length || 0;
+      recentActivities.value = data.recent_activities || [];
     }
   } catch (error) {
     console.error('Error loading dashboard data:', error);

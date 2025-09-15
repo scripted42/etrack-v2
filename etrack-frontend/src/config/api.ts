@@ -1,6 +1,8 @@
 // API Configuration for E-Track
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+  BASE_URL: API_BASE_URL,
   TIMEOUT: 10000,
   ENDPOINTS: {
     AUTH: {

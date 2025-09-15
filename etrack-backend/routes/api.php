@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuditLogController;
+use App\Http\Controllers\Api\StudentImportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Student routes
     Route::apiResource('students', StudentController::class);
+    Route::post('/students/import', [StudentImportController::class, 'import']);
+    Route::post('/students/{student}/photo', [StudentController::class, 'updatePhoto']);
 
     // Employee routes
     Route::apiResource('employees', EmployeeController::class);

@@ -21,9 +21,9 @@ import { fakeBackend } from '@/utils/helpers/fake-backend';
 
 const app = createApp(App);
 fakeBackend();
+app.use(createPinia());
 app.use(router);
 app.use(PerfectScrollbarPlugin);
-app.use(createPinia());
 app.use(VueTablerIcons);
 app.use(Antd);
 app.use(VueApexCharts);

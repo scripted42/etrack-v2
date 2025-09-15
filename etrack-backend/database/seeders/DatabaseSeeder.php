@@ -82,7 +82,9 @@ class DatabaseSeeder extends Seeder
         $siswaRole->permissions()->attach($siswaPermissions);
 
         // Create admin user
-        User::create([
+        User::firstOrCreate([
+            'username' => 'admin'
+        ], [
             'username' => 'admin',
             'name' => 'Administrator',
             'email' => 'admin@smpn14sby.sch.id',
@@ -92,7 +94,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create kepala sekolah user
-        User::create([
+        User::firstOrCreate([
+            'username' => 'kepsek'
+        ], [
             'username' => 'kepsek',
             'name' => 'Kepala Sekolah',
             'email' => 'kepsek@smpn14sby.sch.id',
@@ -102,7 +106,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create TU user
-        User::create([
+        User::firstOrCreate([
+            'username' => 'tu'
+        ], [
             'username' => 'tu',
             'name' => 'Tata Usaha',
             'email' => 'tu@smpn14sby.sch.id',

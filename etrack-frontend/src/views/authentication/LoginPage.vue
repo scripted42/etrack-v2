@@ -25,7 +25,7 @@
                   <v-text-field
                     v-model="form.username"
                     label="Username atau Email"
-                    prepend-inner-icon="mdi-account"
+                    prepend-inner-icon="mdi-account-outline"
                     variant="outlined"
                     :error-messages="errors.username"
                     :disabled="loading"
@@ -36,7 +36,7 @@
                   <v-text-field
                     v-model="form.password"
                     label="Password"
-                    prepend-inner-icon="mdi-lock"
+                    prepend-inner-icon="mdi-lock-outline"
                     variant="outlined"
                     type="password"
                     :error-messages="errors.password"
@@ -65,7 +65,7 @@
                     :disabled="loading"
                     class="mb-4"
                   >
-                    <v-icon left>mdi-login</v-icon>
+                    <v-icon left>mdi-login-variant</v-icon>
                     Masuk
                   </v-btn>
                 </v-form>

@@ -9,6 +9,7 @@ use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
@@ -27,7 +28,7 @@ class StudentController extends Controller
             ], 403);
         }
 
-        $query = Student::with(['user.role']);
+        $query = Student::with(['user.role','identity','contact','guardians']);
 
         // Filter by status
         if ($request->has('status')) {
@@ -71,18 +72,48 @@ class StudentController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string|unique:users,username',
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
+            // user (opsional jika user_id sudah ada)
+            'user_id' => 'nullable|exists:users,id',
+            'username' => 'required_without:user_id|string|unique:users,username',
+            'name' => 'required_without:user_id|string|max:255',
+            'email' => 'nullable|email|unique:users,email',
+            'password' => 'required_without:user_id|string|min:8',
+
+            // student core
             'nis' => 'required|string|unique:students,nis',
             'nama' => 'required|string|max:150',
             'kelas' => 'required|string|max:50',
-            'jurusan' => 'nullable|string|max:100',
+            // SMP: tanpa jurusan
             'status' => 'required|in:aktif,lulus,pindah',
+            'photo' => 'sometimes|file|image|max:2048',
+
+            // identity
+            'identity.nik' => 'nullable|string|max:30',
+            'identity.nisn' => 'nullable|string|max:30',
+            'identity.tempat_lahir' => 'nullable|string|max:100',
+            'identity.tanggal_lahir' => 'nullable|date',
+            'identity.jenis_kelamin' => 'nullable|in:L,P',
+            'identity.agama' => 'nullable|string|max:50',
+
+            // contact
+            'contact.alamat' => 'nullable|string|max:255',
+            'contact.kota' => 'nullable|string|max:100',
+            'contact.provinsi' => 'nullable|string|max:100',
+            'contact.kode_pos' => 'nullable|string|max:20',
+            'contact.no_hp' => 'nullable|string|max:30',
+            'contact.email' => 'nullable|email|max:150',
+
+            // wali (array)
+            'wali' => 'nullable|array',
+            'wali.*.nama' => 'required_with:wali|string|max:150',
+            'wali.*.hubungan' => 'nullable|string|max:50',
+            'wali.*.pekerjaan' => 'nullable|string|max:100',
+            'wali.*.no_hp' => 'nullable|string|max:30',
+            'wali.*.alamat' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
+            error_log('Validation failed: ' . json_encode($validator->errors()));
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
@@ -92,15 +123,26 @@ class StudentController extends Controller
 
         DB::beginTransaction();
         try {
-            // Create user
-            $newUser = User::create([
-                'username' => $request->username,
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role_id' => 5, // Siswa role
-                'status' => 'aktif',
-            ]);
+            // Handle optional photo upload
+            $photoPath = null;
+            if ($request->hasFile('photo')) {
+                $photoPath = $request->file('photo')->store('students', 'public');
+            }
+            // Create or use existing user
+            if ($request->filled('user_id')) {
+                $newUser = User::findOrFail($request->user_id);
+            } else {
+                // fallback email jika tidak dikirim (kolom email NOT NULL)
+                $fallbackEmail = $request->email ?? ($request->username.'@student.local');
+                $newUser = User::create([
+                    'username' => $request->username,
+                    'name' => $request->name,
+                    'email' => $fallbackEmail,
+                    'password' => Hash::make($request->password),
+                    'role_id' => 5, // Siswa role
+                    'status' => 'aktif',
+                ]);
+            }
 
             // Create student profile
             $student = Student::create([
@@ -108,9 +150,23 @@ class StudentController extends Controller
                 'nis' => $request->nis,
                 'nama' => $request->nama,
                 'kelas' => $request->kelas,
-                'jurusan' => $request->jurusan,
                 'status' => $request->status,
+                'qr_value' => $request->input('qr_value', $request->nis),
+                'photo_path' => $photoPath,
             ]);
+
+            // Optional details
+            if ($request->filled('identity')) {
+                $student->identity()->create($request->input('identity'));
+            }
+            if ($request->filled('contact')) {
+                $student->contact()->create($request->input('contact'));
+            }
+            if ($request->filled('wali')) {
+                foreach ($request->input('wali') as $g) {
+                    $student->guardians()->create($g);
+                }
+            }
 
             // Log activity
             AuditLog::create([
@@ -129,7 +185,7 @@ class StudentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Data siswa berhasil ditambahkan',
-                'data' => $student->load('user.role')
+                'data' => $student->load(['user.role','identity','contact','guardians','health'])
             ], 201);
 
         } catch (\Exception $e) {
@@ -158,7 +214,7 @@ class StudentController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $student->load(['user.role', 'user.documents'])
+            'data' => $student->load(['user.role','identity','contact','guardians'])
         ]);
     }
 
@@ -183,9 +239,11 @@ class StudentController extends Controller
             'nis' => 'sometimes|required|string|unique:students,nis,' . $student->id,
             'nama' => 'sometimes|required|string|max:150',
             'kelas' => 'sometimes|required|string|max:50',
-            'jurusan' => 'nullable|string|max:100',
             'status' => 'sometimes|required|in:aktif,lulus,pindah',
+            'qr_value' => 'sometimes|nullable|string|max:255',
+            'photo' => 'sometimes|file|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
 
         if ($validator->fails()) {
             return response()->json([
@@ -202,8 +260,22 @@ class StudentController extends Controller
                 $student->user->update($request->only(['username', 'name', 'email']));
             }
 
+            // Handle optional photo upload
+            $updateData = $request->only(['nis', 'nama', 'kelas', 'status', 'qr_value']);
+            if ($request->hasFile('photo')) {
+                \Log::info('Photo upload detected', [
+                    'file_name' => $request->file('photo')->getClientOriginalName(),
+                    'file_size' => $request->file('photo')->getSize(),
+                    'file_mime' => $request->file('photo')->getMimeType(),
+                ]);
+                $path = $request->file('photo')->store('students', 'public');
+                $updateData['photo_path'] = $path;
+                \Log::info('Photo stored at path: ' . $path);
+            } else {
+                \Log::info('No photo file in request');
+            }
             // Update student
-            $student->update($request->only(['nis', 'nama', 'kelas', 'jurusan', 'status']));
+            $student->update($updateData);
 
             // Log activity
             AuditLog::create([
@@ -223,7 +295,7 @@ class StudentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Data siswa berhasil diperbarui',
-                'data' => $student->load('user.role')
+                'data' => $student->load(['user.role','identity','contact','guardians'])
             ]);
 
         } catch (\Exception $e) {
@@ -231,6 +303,58 @@ class StudentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat memperbarui data',
+                'error' => $e->getMessage(),
+                'debug' => [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'has_photo' => $request->hasFile('photo'),
+                    'photo_size' => $request->hasFile('photo') ? $request->file('photo')->getSize() : null,
+                    'photo_mime' => $request->hasFile('photo') ? $request->file('photo')->getMimeType() : null,
+                ]
+            ], 500);
+        }
+    }
+
+    /**
+     * Update student photo
+     */
+    public function updatePhoto(Request $request, Student $student): JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user->role->permissions->contains('name', 'manage_students')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak memiliki akses untuk mengelola data siswa'
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'photo' => 'required|file|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $path = $request->file('photo')->store('students', 'public');
+            $student->update(['photo_path' => $path]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Foto siswa berhasil diperbarui',
+                'data' => $student->load(['user.role','identity','contact','guardians'])
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui foto',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -264,8 +388,14 @@ class StudentController extends Controller
                 'ip_address' => $request->ip(),
             ]);
 
-            // Delete student (user will be deleted by cascade)
-            $student->delete();
+            // Hapus user agar username (NIS) tidak tertinggal dan menghalangi import ulang
+            if ($student->user) {
+                // Menghapus user akan menghapus student melalui cascade jika FK diset cascade
+                $student->user->delete();
+            } else {
+                // Fallback jika relasi user tidak ada
+                $student->delete();
+            }
 
             DB::commit();
 

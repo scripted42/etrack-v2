@@ -1,25 +1,19 @@
 const MainRoutes = {
-  path: '/main',
+  path: '/dashboard',
   meta: {
     requiresAuth: true
   },
-  redirect: '/dashboard',
   component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
   children: [
     {
-      name: 'LandingPage',
-      path: '/',
-      component: () => import('@/views/dashboard/DefaultDashboard.vue')
-    },
-    {
       name: 'Dashboard',
-      path: '/dashboard',
+      path: '',
       component: () => import('@/views/dashboard/DefaultDashboard.vue')
     },
     {
       name: 'Students',
       path: '/students',
-      component: () => import('@/views/StarterPage.vue')
+      component: () => import('@/views/students/StudentList.vue')
     },
     {
       name: 'Employees',

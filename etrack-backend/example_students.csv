@@ -1,0 +1,4 @@
+nis,nama,kelas,status,tanggal_lahir,qr_value,wali_nama,wali_hubungan,wali_no_hp
+9101,Siswa Import A,7A,aktif,2012-03-01,,Ayah Import,Ayah,0811111111
+9102,Siswa Import B,7B,aktif,2012-04-02,,Ibu Import,Ibu,0822222222
+9103,Siswa Import C,7C,aktif,,,Wali Import,Lainnya,0833333333

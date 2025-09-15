@@ -1,13 +1,33 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { User } from '@/types/user';
-import apiService from '@/services/api';
+import api from '@/services/api';
 
 export const useAuthStore = defineStore('auth', () => {
   // initial state
-  const user = ref<User | null>(JSON.parse(localStorage.getItem('user') || 'null'));
-  const token = ref<string | null>(localStorage.getItem('auth_token'));
+  const user = ref<User | null>(null);
+  const token = ref<string | null>(null);
   const returnUrl = ref<string | null>(null);
+
+  // Initialize from localStorage
+  try {
+    const userData = localStorage.getItem('user');
+    const tokenData = localStorage.getItem('authToken');
+    
+    if (userData && userData !== 'undefined' && userData !== 'null') {
+      user.value = JSON.parse(userData);
+    }
+    
+    if (tokenData && tokenData !== 'undefined' && tokenData !== 'null') {
+      token.value = tokenData;
+    }
+  } catch (error) {
+    console.error('Error parsing user data from localStorage:', error);
+    localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
+    user.value = null;
+    token.value = null;
+  }
 
   // computed
   const isLoggedIn = computed(() => !!user.value && !!token.value);
@@ -15,20 +35,21 @@ export const useAuthStore = defineStore('auth', () => {
   // actions
   async function login(username: string, password: string) {
     try {
-      const response = await apiService.login({ username, password });
+      const response = await api.post('/login', { username, password });
       
-      if (response.success) {
+      const payload = response.data?.data;
+      if (response.data?.success && payload?.user && payload?.token) {
         // update pinia state
-        user.value = response.data.user;
-        token.value = response.data.token;
+        user.value = payload.user;
+        token.value = payload.token;
 
         // store user details and jwt in local storage
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        localStorage.setItem('auth_token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(payload.user));
+        localStorage.setItem('authToken', payload.token);
 
         return returnUrl.value || '/dashboard';
       } else {
-        throw new Error(response.message || 'Login failed');
+        throw new Error('Login failed');
       }
     } catch (error: any) {
       console.error('Login failed:', error);
@@ -38,41 +59,26 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout() {
     try {
-      await apiService.logout();
+      await api.post('/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
       user.value = null;
       token.value = null;
-      localStorage.removeItem('user');
-      localStorage.removeItem('auth_token');
+      localStorage.clear(); // Clear all localStorage
     }
   }
 
   async function getMe() {
     try {
-      const response = await apiService.getMe();
-      if (response.success) {
+      const response = await api.get('/me');
+      if (response.data) {
         user.value = response.data;
         localStorage.setItem('user', JSON.stringify(response.data));
       }
     } catch (error) {
       console.error('Get user info failed:', error);
       logout();
-    }
-  }
-
-  async function changePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
-    try {
-      const response = await apiService.changePassword({
-        current_password: currentPassword,
-        new_password: newPassword,
-        new_password_confirmation: confirmPassword
-      });
-      return response;
-    } catch (error) {
-      console.error('Change password failed:', error);
-      throw error;
     }
   }
 
@@ -83,7 +89,6 @@ export const useAuthStore = defineStore('auth', () => {
     isLoggedIn,
     login,
     logout,
-    getMe,
-    changePassword
+    getMe
   };
 });
