@@ -1,0 +1,173 @@
+**ERD (Entity Relationship Diagram) lengkap & detail** untuk **Dashboard User Management Sekolah** sesuai PRD + tech stack (Laravel 11 + Vue 3 + MySQL).
+
+---
+
+# 📊 ERD Dashboard User Management Sekolah
+
+```mermaid
+erDiagram
+
+    USERS ||--o{ ROLES : "has"
+    USERS ||--o{ STUDENTS : "is"
+    USERS ||--o{ EMPLOYEES : "is"
+    USERS ||--o{ DOCUMENTS : "uploads"
+    USERS ||--o{ AUDIT_LOGS : "generates"
+
+    ROLES ||--o{ PERMISSIONS : "contains"
+    ROLES ||--o{ USERS : "assigned to"
+
+    STUDENTS {
+        bigint id PK
+        bigint user_id FK
+        varchar nis
+        varchar nama
+        varchar kelas
+        varchar jurusan
+        enum status "aktif/lulus/pindah"
+        datetime created_at
+        datetime updated_at
+    }
+
+    EMPLOYEES {
+        bigint id PK
+        bigint user_id FK
+        varchar nip
+        varchar nama
+        varchar jabatan
+        enum status "aktif/cuti/pensiun"
+        datetime created_at
+        datetime updated_at
+    }
+
+    USERS {
+        bigint id PK
+        varchar username
+        varchar email
+        varchar password_hash
+        bigint role_id FK
+        enum status "aktif/nonaktif"
+        datetime last_login
+        datetime created_at
+        datetime updated_at
+    }
+
+    ROLES {
+        bigint id PK
+        varchar name
+        text description
+        datetime created_at
+        datetime updated_at
+    }
+
+    PERMISSIONS {
+        bigint id PK
+        varchar name
+        text description
+        datetime created_at
+        datetime updated_at
+    }
+
+    DOCUMENTS {
+        bigint id PK
+        bigint user_id FK
+        varchar type
+        varchar file_path
+        varchar hash
+        datetime uploaded_at
+    }
+
+    AUDIT_LOGS {
+        bigint id PK
+        bigint user_id FK
+        varchar action
+        text details
+        varchar ip_address
+        datetime created_at
+    }
+```
+
+---
+
+## 📑 Penjelasan Tabel
+
+### 1. `users`
+
+Menyimpan akun utama semua pengguna (siswa, guru, TU, kepala sekolah, admin).
+Kolom penting:
+
+* `id` → PK
+* `username` / `email`
+* `password_hash` (bcrypt/argon2)
+* `role_id` → FK ke `roles`
+* `status` (aktif / nonaktif)
+* `last_login` (timestamp login terakhir)
+
+---
+
+### 2. `roles`
+
+Menyimpan daftar peran (admin, siswa, guru, TU, kepala sekolah).
+
+* `id` → PK
+* `name` (contoh: "Admin", "Guru")
+* `description`
+
+---
+
+### 3. `permissions`
+
+Menyimpan daftar permission granular. Misalnya: `create_user`, `delete_student`, `view_report`.
+
+* Bisa dihubungkan dengan **Spatie Laravel Permission**.
+* Relasi **Many-to-Many** dengan `roles`.
+
+---
+
+### 4. `students`
+
+Menyimpan profil detail siswa.
+
+* `user_id` → FK ke `users`.
+* `nis`, `nama`, `kelas`, `jurusan`, `status` (aktif, lulus, pindah).
+
+---
+
+### 5. `employees`
+
+Menyimpan profil pegawai (guru, TU, kepala sekolah, staf).
+
+* `user_id` → FK ke `users`.
+* `nip`, `jabatan`, `status` (aktif, cuti, pensiun).
+
+---
+
+### 6. `documents`
+
+Menyimpan dokumen penting (ijazah, SK, sertifikat).
+
+* `user_id` → FK ke `users`.
+* `type` → jenis dokumen (SK, ijazah).
+* `file_path` → lokasi file di Laravel storage.
+* `hash` → checksum SHA256 untuk validasi.
+
+---
+
+### 7. `audit_logs`
+
+Menyimpan jejak audit aktivitas user (sesuai ISO 27001).
+
+* `user_id` → siapa yang melakukan aksi.
+* `action` → contoh: LOGIN, CREATE\_USER, UPDATE\_PROFILE.
+* `details` → JSON/Text detail aksi.
+* `ip_address` → asal request.
+
+---
+
+## 📌 Catatan Implementasi di Laravel
+
+* Gunakan **Spatie Laravel-Permission** → otomatis buat tabel `roles`, `permissions`, dan `role_has_permissions`.
+* `students` dan `employees` tidak wajib untuk semua user → hanya user tertentu.
+* `audit_logs` → bisa otomatis dengan **Laravel ActivityLog**.
+* `documents` → gunakan **Laravel Storage (local/public/s3)**.
+
+---

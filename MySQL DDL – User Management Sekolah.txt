@@ -1,0 +1,123 @@
+-- ====================================
+-- DATABASE: user_management_sekolah
+-- ====================================
+
+CREATE DATABASE IF NOT EXISTS user_management_sekolah
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+USE user_management_sekolah;
+
+-- ====================================
+-- TABEL: roles
+-- ====================================
+CREATE TABLE roles (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- ====================================
+-- TABEL: permissions
+-- (Opsional, jika pakai Spatie Laravel Permission)
+-- ====================================
+CREATE TABLE permissions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- ====================================
+-- RELASI Many-to-Many antara roles & permissions
+-- ====================================
+CREATE TABLE role_has_permissions (
+    role_id BIGINT UNSIGNED NOT NULL,
+    permission_id BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (role_id, permission_id),
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ====================================
+-- TABEL: users
+-- ====================================
+CREATE TABLE users (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role_id BIGINT UNSIGNED NOT NULL,
+    status ENUM('aktif', 'nonaktif') DEFAULT 'aktif',
+    last_login TIMESTAMP NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- ====================================
+-- TABEL: students
+-- ====================================
+CREATE TABLE students (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    nis VARCHAR(50) NOT NULL UNIQUE,
+    nama VARCHAR(150) NOT NULL,
+    kelas VARCHAR(50) NOT NULL,
+    jurusan VARCHAR(100) NULL,
+    status ENUM('aktif', 'lulus', 'pindah') DEFAULT 'aktif',
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ====================================
+-- TABEL: employees
+-- ====================================
+CREATE TABLE employees (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    nip VARCHAR(50) NOT NULL UNIQUE,
+    nama VARCHAR(150) NOT NULL,
+    jabatan VARCHAR(100) NOT NULL,
+    status ENUM('aktif', 'cuti', 'pensiun') DEFAULT 'aktif',
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ====================================
+-- TABEL: documents
+-- ====================================
+CREATE TABLE documents (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    type VARCHAR(50) NOT NULL, -- contoh: 'ijazah', 'SK', 'sertifikat'
+    file_path VARCHAR(255) NOT NULL,
+    hash VARCHAR(128) NOT NULL,
+    uploaded_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ====================================
+-- TABEL: audit_logs
+-- ====================================
+CREATE TABLE audit_logs (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    action VARCHAR(100) NOT NULL, -- contoh: LOGIN, CREATE_USER
+    details JSON NULL, -- simpan detail perubahan
+    ip_address VARCHAR(45) NULL, -- support IPv4/IPv6
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- ====================================
+-- INDEXING untuk optimasi
+-- ====================================
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_students_nis ON students(nis);
+CREATE INDEX idx_employees_nip ON employees(nip);
+CREATE INDEX idx_audit_logs_user ON audit_logs(user_id);

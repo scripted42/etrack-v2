@@ -1,0 +1,174 @@
+PRD
+
+* **Backend**: Laravel 11 (API + RBAC + Logging)
+* **Frontend**: Vue 3 (Mobile Friendly)
+* **Database**: MySQL 8
+* **Deployment**: PC Lokal (on-premise, bisa dioptimalkan untuk backup & keamanan)
+
+
+---
+
+# 📑 Product Requirements Document (PRD) – Revisi
+
+**Produk**: Dashboard User Management Sekolah
+**Versi**: 1.1
+**Tanggal**: 15 September 2025
+**Stack**: Laravel 11, Vue 3, MySQL, On-Prem Deployment
+
+---
+
+## 1. 📌 Latar Belakang
+
+Sekolah memerlukan sistem manajemen siswa & pegawai berbasis web dengan keamanan standar ISO. Sistem ini akan berjalan di server lokal (PC Sekolah) dengan backend **Laravel 11**, frontend **Vue 3**, dan database **MySQL**.
+
+---
+
+## 2. 🎯 Tujuan Produk
+
+* Satu portal untuk manajemen data siswa & pegawai.
+* Sistem sesuai **ISO 27001** (Keamanan), **ISO 25010** (Kualitas Software), dan **ISO 9001** (Mutu).
+* Audit trail dan role-based access.
+* Dapat berjalan **di server lokal sekolah tanpa internet**, namun bisa integrasi bila dibutuhkan.
+
+---
+
+## 3. 👥 Stakeholders
+
+* **Admin IT** → manage sistem, backup, restore.
+* **Kepala Sekolah** → akses laporan & monitoring.
+* **TU / Operator Sekolah** → CRUD data siswa & pegawai.
+* **Guru** → akses profil siswa terbatas.
+* **Siswa / Orang Tua** → hanya akses data pribadi.
+
+---
+
+## 4. 📊 Scope
+
+### In-Scope
+
+* CRUD siswa & pegawai.
+* RBAC (Role Based Access Control).
+* Audit log.
+* Dashboard statistik.
+* Backup/restore MySQL otomatis.
+* Sistem bisa diakses **LAN & WiFi sekolah**.
+
+### Out-of-Scope
+
+* Sistem payroll penuh.
+* Fitur e-learning.
+* Cloud-only deployment (fokus on-premise).
+
+---
+
+## 5. 🔑 Fitur Utama
+
+### 5.1 Authentication & Security (Laravel + Sanctum/Passport)
+
+* Login berbasis JWT / Sanctum.
+* Password policy (min. 8 karakter, kombinasi).
+* MFA opsional (email OTP).
+* Auto logout setelah idle.
+
+### 5.2 User Management (Laravel Eloquent + Vue CRUD UI)
+
+* Tambah, edit, hapus siswa & pegawai.
+* Import data via Excel/CSV.
+* Role & Permission (Admin, TU, Guru, Siswa, Kepala Sekolah).
+* Status aktif/nonaktif.
+
+### 5.3 Profil Siswa & Pegawai
+
+* Data identitas lengkap.
+* Upload dokumen (SK, ijazah, sertifikat → disimpan di storage Laravel).
+* Riwayat status (pindah, cuti, pensiun, lulus).
+
+### 5.4 Dashboard & Monitoring (Vue + Chart.js / ECharts)
+
+* Statistik siswa/pegawai aktif.
+* Grafik pertumbuhan siswa per tahun.
+* Kehadiran/absensi (integrasi dengan sistem presensi bila ada).
+
+### 5.5 Audit & Logging (Laravel Audit Trail)
+
+* Log semua aktivitas user.
+* Simpan di tabel `audit_logs` (MySQL).
+* Export ke PDF/CSV.
+* Alert jika ada login mencurigakan.
+
+### 5.6 Integrasi
+
+* API berbasis Laravel API Resource.
+* Token OAuth2 / JWT untuk aplikasi eksternal (presensi, payroll).
+* Import Dapodik / Excel → batch insert MySQL.
+
+---
+
+## 6. 📐 Non-Functional Requirements (ISO 25010)
+
+* **Security**: enkripsi DB (MySQL at rest + SSL di transit).
+* **Reliability**: backup MySQL otomatis harian.
+* **Performance**: respon <2s untuk request umum.
+* **Usability**: UI Vue 3 + Tailwind, mobile-friendly (PWA).
+* **Maintainability**: Laravel modular (Service/Repository pattern).
+* **Compliance**: mapping ke ISO/IEC 27001 control (RBAC, logging, backup).
+
+---
+
+## 7. 🏗 Arsitektur Sistem
+
+* **Frontend (Vue 3)**: SPA, komunikasi via Axios ke Laravel API.
+* **Backend (Laravel 11)**:
+
+  * Sanctum/Passport untuk auth.
+  * Spatie Laravel-Permission untuk RBAC.
+  * Laravel Telescope/ActivityLog untuk audit trail.
+* **Database (MySQL)**: tabel utama → users, roles, students, employees, documents, audit\_logs.
+* **Deployment (On-Premise)**:
+
+  * Apache + PHP 8.3 + Laravel 11.
+  * Supervisor untuk queue worker.
+  * Cronjob backup MySQL otomatis.
+
+---
+
+## 8. 🗄 Database (MySQL ERD High Level)
+
+* `users` (id, username, password\_hash, role\_id, status).
+* `roles` (id, name, permissions).
+* `students` (id, user\_id, nis, kelas, jurusan, status).
+* `employees` (id, user\_id, nip, jabatan, status).
+* `documents` (id, user\_id, type, file\_path, hash).
+* `audit_logs` (id, user\_id, action, details, ip, timestamp).
+
+---
+
+## 9. 📑 Compliance Mapping (ISO 27001)
+
+* **A.9 (Access Control)** → RBAC (Spatie Laravel Permission).
+* **A.10 (Cryptography)** → password hash (bcrypt/argon2), SSL/TLS.
+* **A.12 (Logging)** → Laravel ActivityLog + Audit Trail.
+* **A.17 (Continuity)** → Backup MySQL + restore procedure.
+* **A.18 (Compliance)** → Export log untuk audit eksternal.
+
+---
+
+## 10. 📅 Roadmap Implementasi
+
+1. **Fase 1**: Setup Laravel + Vue + RBAC.
+2. **Fase 2**: CRUD Siswa & Pegawai.
+3. **Fase 3**: Dashboard & Laporan.
+4. **Fase 4**: Audit trail & backup otomatis.
+5. **Fase 5**: Integrasi (Dapodik, presensi, payroll).
+
+---
+
+## 11. ✅ Kriteria Keberhasilan
+
+* Semua role (admin, siswa, guru, TU, kepala sekolah) bisa login sesuai hak akses.
+* Data siswa & pegawai aman (terenkripsi, backup tersedia).
+* Audit log dapat diekspor & dipantau.
+* Dashboard real-time berjalan di server lokal.
+* Sistem lolos uji keamanan (penetration test internal).
+
+---
