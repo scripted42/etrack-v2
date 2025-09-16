@@ -8,7 +8,7 @@ const MainRoutes = {
     {
       name: 'Dashboard',
       path: '',
-      component: () => import('@/views/dashboard/DefaultDashboard.vue')
+      component: () => import('@/views/DashboardSimple.vue')
     },
     {
       name: 'Students',

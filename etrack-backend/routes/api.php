@@ -32,8 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 
     // Dashboard routes
-    Route::get('/dashboard/statistics', [DashboardController::class, 'statistics']);
-    Route::get('/dashboard/chart-data', [DashboardController::class, 'chartData']);
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard/health', [DashboardController::class, 'health']);
 
     // Student routes
     Route::apiResource('students', StudentController::class);
