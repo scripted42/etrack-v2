@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuditLogController;
+use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\StudentImportController;
 
 /*
@@ -54,4 +55,14 @@ Route::post('/employees/{employee}/photo', [EmployeeController::class, 'updatePh
     Route::get('/audit-logs/{auditLog}', [AuditLogController::class, 'show']);
     Route::get('/audit-logs/statistics/overview', [AuditLogController::class, 'statistics']);
     Route::post('/audit-logs/export', [AuditLogController::class, 'export']);
+
+    // Backup routes
+    Route::get('/backups', [BackupController::class, 'index']);
+    Route::post('/backups', [BackupController::class, 'create']);
+    Route::get('/backups/statistics', [BackupController::class, 'statistics']);
+    Route::get('/backups/config', [BackupController::class, 'config']);
+    Route::post('/backups/test', [BackupController::class, 'test']);
+    Route::post('/backups/{filename}/restore', [BackupController::class, 'restore']);
+    Route::get('/backups/{filename}/download', [BackupController::class, 'download']);
+    Route::delete('/backups/{filename}', [BackupController::class, 'destroy']);
 });

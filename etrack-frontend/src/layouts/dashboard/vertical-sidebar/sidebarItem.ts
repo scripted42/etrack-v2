@@ -5,6 +5,7 @@ import {
   TeamOutlined,
   FileTextOutlined,
   HistoryOutlined,
+  BackupOutlined,
   SettingOutlined,
   LogoutOutlined,
   BookOutlined,
@@ -62,12 +63,18 @@ const sidebarItem: menu[] = [
     to: '/reports',
     permission: 'view_reports'
   },
-  {
-    title: 'Audit Log',
-    icon: HistoryOutlined,
-    to: '/audit-logs',
-    permission: 'view_audit_logs'
-  },
+    {
+      title: 'Audit Log',
+      icon: HistoryOutlined,
+      to: '/audit-logs',
+      permission: 'view_audit_logs'
+    },
+    {
+      title: 'Backup & Restore',
+      icon: BackupOutlined,
+      to: '/backup',
+      permission: 'view_backups'
+    },
   { header: 'Pengaturan' },
   {
     title: 'Profil',

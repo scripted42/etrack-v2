@@ -31,6 +31,11 @@ const MainRoutes = {
       component: () => import('@/views/AuditTrailImproved.vue')
     },
     {
+      name: 'BackupDashboard',
+      path: '/backup',
+      component: () => import('@/views/BackupDashboard.vue')
+    },
+    {
       name: 'Reports',
       path: '/reports',
       component: () => import('@/views/StarterPage.vue')
