@@ -1,0 +1,4 @@
+nis,nama,kelas,status,qr_value,nik,nisn,tempat_lahir,tanggal_lahir,jenis_kelamin,agama,alamat,kota,provinsi,kode_pos,no_hp,email,wali_nama,wali_hubungan,wali_no_hp,wali_alamat,wali_pekerjaan
+97001,Test Format 1,X IPA 1,aktif,97001,3201234567890014,1234567914,Malang,12/25/2010,L,Islam,Jl. Test No. 1,Malang,Jawa Timur,12358,081234567914,97001@student.local,Test Parent 1,Ayah,081234567913,Jl. Test Wali No. 1,Test Job 1
+97002,Test Format 2,X IPA 2,aktif,97002,3201234567890015,1234567915,Bandung,25-12-2011,P,Kristen,Jl. Test No. 2,Bandung,Jawa Barat,12359,081234567915,97002@student.local,Test Parent 2,Ibu,081234567914,Jl. Test Wali No. 2,Test Job 2
+97003,Test Format 3,X IPA 3,aktif,97003,3201234567890016,1234567916,Yogyakarta,2012-06-15,L,Hindu,Jl. Test No. 3,Yogyakarta,DIY,12360,081234567916,97003@student.local,Test Parent 3,Ayah,081234567915,Jl. Test Wali No. 3,Test Job 3

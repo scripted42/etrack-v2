@@ -1,0 +1,4 @@
+nis,nama,kelas,status,qr_value,nik,nisn,tempat_lahir,tanggal_lahir,jenis_kelamin,agama,alamat,kota,provinsi,kode_pos,no_hp,email,wali_nama,wali_hubungan,wali_no_hp,wali_alamat,wali_pekerjaan
+98001,Test DD/MM/YYYY 1,X IPA 1,aktif,98001,3201234567890017,1234567917,Surabaya,25/12/2012,L,Islam,Jl. Test No. 1,Surabaya,Jawa Timur,12361,081234567917,98001@student.local,Test Parent 1,Ayah,081234567916,Jl. Test Wali No. 1,Test Job 1
+98002,Test DD/MM/YYYY 2,X IPA 2,aktif,98002,3201234567890018,1234567918,Sidoarjo,15/06/2010,P,Kristen,Jl. Test No. 2,Sidoarjo,Jawa Timur,12362,081234567918,98002@student.local,Test Parent 2,Ibu,081234567917,Jl. Test Wali No. 2,Test Job 2
+98003,Test DD/MM/YYYY 3,X IPA 3,aktif,98003,3201234567890019,1234567919,Malang,01/01/2011,L,Hindu,Jl. Test No. 3,Malang,Jawa Timur,12363,081234567919,98003@student.local,Test Parent 3,Ayah,081234567918,Jl. Test Wali No. 3,Test Job 3

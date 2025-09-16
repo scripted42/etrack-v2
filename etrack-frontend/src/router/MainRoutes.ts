@@ -18,7 +18,7 @@ const MainRoutes = {
     {
       name: 'Employees',
       path: '/employees',
-      component: () => import('@/views/StarterPage.vue')
+      component: () => import('@/views/employees/EmployeeList.vue')
     },
     {
       name: 'Users',

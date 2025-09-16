@@ -33,23 +33,30 @@
         :headers="headers"
         :loading="loading"
         density="comfortable"
-        fixed-header
         :striped="true"
         :hover="true"
+        class="elevation-1"
+        :show-select="false"
+        hide-default-footer
+        :items-per-page="-1"
+        :mobile-breakpoint="0"
       >
+        <template #item.nis="{ item }">
+          <div class="font-weight-medium text-body-1">{{ item.nis }}</div>
+        </template>
+
         <template #item.nama="{ item }">
           <div class="d-flex align-center">
-            <div 
-              class="mr-3 d-flex align-center justify-center"
-              style="width:36px; height:36px; border-radius:50%; border:2px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: #f5f5f5; overflow: hidden;"
-            >
+            <div class="student-avatar">
               <img 
                 v-if="avatarSrc(item)" 
                 :src="avatarSrc(item)" 
                 :alt="item.nama"
-                style="width:100%; height:100%; object-fit: cover;"
+                class="avatar-image"
               />
-              <span v-else style="font-size:14px; font-weight:500; color: #666;">{{ initials(item.nama) }}</span>
+              <div v-else class="avatar-placeholder">
+                {{ initials(item.nama) }}
+              </div>
             </div>
             <div>
               <div class="font-weight-medium">{{ item.nama }}</div>
@@ -98,7 +105,10 @@
         <template #item.qr_value="{ item }">
           <v-tooltip text="Klik untuk pratinjau QR">
             <template #activator="{ props }">
-              <img v-bind="props" :src="qrThumb(item)" alt="QR" style="width:34px;height:34px;border:1px solid #eee;padding:2px;border-radius:4px;cursor:pointer" @click="previewQr(item)" />
+              <div v-bind="props" style="width:34px;height:34px;border:1px solid #eee;padding:2px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#f5f5f5;" @click="previewQr(item)">
+                <img v-if="qrThumb(item)" :src="qrThumb(item)" alt="QR" style="width:100%;height:100%;object-fit:contain;" @error="handleQrError" />
+                <span v-else style="font-size:12px;color:#999;">QR</span>
+              </div>
             </template>
           </v-tooltip>
         </template>
@@ -110,7 +120,103 @@
           </div>
         </template>
       </v-data-table>
+      
+      <!-- Custom Pagination -->
+      <v-card class="mt-4" elevation="1">
+        <v-card-text class="pagination-container">
+          <!-- Items per page selector -->
+          <div class="pagination-left">
+            <span class="text-body-2">Items per page:</span>
+            <v-select
+              v-model="itemsPerPage"
+              :items="[
+                { title: '10', value: 10 },
+                { title: '25', value: 25 },
+                { title: '50', value: 50 },
+                { title: '100', value: 100 },
+                { title: 'ALL', value: -1 }
+              ]"
+              density="compact"
+              variant="outlined"
+              hide-details
+              style="min-width: 80px;"
+              @update:model-value="onItemsPerPageChange"
+            />
+          </div>
+          
+          <!-- Pagination info and controls -->
+          <div class="pagination-right">
+            <!-- Info text -->
+            <span class="text-body-2 pagination-info">
+              {{ paginationInfo }}
+            </span>
+            
+            <!-- Pagination controls -->
+            <div class="pagination-controls">
+              <!-- First page -->
+              <v-btn
+                :disabled="currentPage === 1"
+                variant="outlined"
+                size="small"
+                @click="goToPage(1)"
+                class="pagination-btn"
+              >
+                |&lt;&lt;
+              </v-btn>
+              
+              <!-- Previous page -->
+              <v-btn
+                :disabled="currentPage === 1"
+                variant="outlined"
+                size="small"
+                @click="goToPage(currentPage - 1)"
+                class="pagination-btn"
+              >
+                &lt;
+              </v-btn>
+              
+              <!-- Page numbers -->
+              <template v-for="page in visiblePages" :key="page">
+                <v-btn
+                  v-if="page !== '...'"
+                  :color="page === currentPage ? 'primary' : 'default'"
+                  :variant="page === currentPage ? 'flat' : 'outlined'"
+                  size="small"
+                  @click="goToPage(page)"
+                  class="pagination-btn"
+                >
+                  {{ page }}
+                </v-btn>
+                <span v-else class="px-2">...</span>
+              </template>
+              
+              <!-- Next page -->
+              <v-btn
+                :disabled="currentPage === totalPages"
+                variant="outlined"
+                size="small"
+                @click="goToPage(currentPage + 1)"
+                class="pagination-btn"
+              >
+                &gt;
+              </v-btn>
+              
+              <!-- Last page -->
+              <v-btn
+                :disabled="currentPage === totalPages"
+                variant="outlined"
+                size="small"
+                @click="goToPage(totalPages)"
+                class="pagination-btn"
+              >
+                &gt;&gt;|
+              </v-btn>
+            </div>
+          </div>
+        </v-card-text>
+      </v-card>
     </v-card>
+
 
     <!-- Import Dialog -->
     <v-dialog v-model="importDialog" max-width="600">
@@ -154,7 +260,12 @@
       <v-card>
         <v-card-title>Pratinjau QR</v-card-title>
         <v-card-text class="d-flex justify-center">
-          <img :src="qrPreview.url" alt="QR" style="width:280px;height:280px;border:1px solid #eee;padding:8px;border-radius:8px" />
+          <div v-if="qrPreview.url" style="width:280px;height:280px;border:1px solid #eee;padding:8px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;">
+            <img :src="qrPreview.url" alt="QR" style="width:100%;height:100%;object-fit:contain;" @error="handleQrPreviewError" />
+          </div>
+          <div v-else style="width:280px;height:280px;border:1px solid #eee;padding:8px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;color:#999;">
+            <span>QR Code tidak tersedia</span>
+          </div>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
@@ -253,7 +364,7 @@
               <v-col cols="12"><v-text-field density="comfortable" variant="outlined" class="mb-4" v-model="w.alamat" label="Alamat Wali" /></v-col>
             </v-row>
             <v-btn variant="text" @click="addWali">+ Tambah Wali</v-btn>
-            <v-alert v-if="errorMessage" type="error" variant="tonal" class="mt-2">{{ errorMessage }}</v-alert>
+            <v-alert v-if="showError" type="error" variant="tonal" class="mt-2">{{ errorMessage }}</v-alert>
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -268,7 +379,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, computed } from 'vue';
+import { ref, reactive, onMounted, watch, computed, nextTick } from 'vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import { fetchStudents, createStudent, updateStudent, deleteStudent, importStudentsCsv, type Student } from '@/services/students';
 import QRCode from 'qrcode';
@@ -282,7 +393,112 @@ const breadcrumbs = ref([
 const loading = ref(false);
 const saving = ref(false);
 const errorMessage = ref('');
+
+// Computed property untuk show/hide error alert
+const showError = computed(() => !!errorMessage.value);
 const students = ref<Student[]>([]);
+const filters = reactive<{ search: string; kelas: string | null; status: string | null }>({ search: '', kelas: null, status: null });
+const totalStudents = ref(0);
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+
+// Computed properties for custom pagination
+const totalPages = computed(() => {
+  if (itemsPerPage.value === -1) return 1;
+  if (itemsPerPage.value <= 0) return 1;
+  return Math.ceil(totalStudents.value / itemsPerPage.value);
+});
+
+const paginationInfo = computed(() => {
+  if (itemsPerPage.value === -1) {
+    return `1-${totalStudents.value} of ${totalStudents.value}`;
+  }
+  const start = (currentPage.value - 1) * itemsPerPage.value + 1;
+  const end = Math.min(currentPage.value * itemsPerPage.value, totalStudents.value);
+  return `${start}-${end} of ${totalStudents.value}`;
+});
+
+const visiblePages = computed(() => {
+  const pages = [];
+  const total = totalPages.value;
+  const current = currentPage.value;
+  
+  // Jika ALL (itemsPerPage = -1), hanya tampilkan halaman 1
+  if (itemsPerPage.value === -1) {
+    return [1];
+  }
+  
+  if (total <= 7) {
+    // Show all pages if total is 7 or less
+    for (let i = 1; i <= total; i++) {
+      pages.push(i);
+    }
+  } else {
+    // Show first page
+    pages.push(1);
+    
+    if (current > 4) {
+      pages.push('...');
+    }
+    
+    // Show pages around current page
+    const start = Math.max(2, current - 1);
+    const end = Math.min(total - 1, current + 1);
+    
+    for (let i = start; i <= end; i++) {
+      if (i !== 1 && i !== total) {
+        pages.push(i);
+      }
+    }
+    
+    if (current < total - 3) {
+      pages.push('...');
+    }
+    
+    // Show last page
+    if (total > 1) {
+      pages.push(total);
+    }
+  }
+  
+  return pages;
+});
+
+// Watch totalStudents untuk debug
+watch(totalStudents, (newVal, oldVal) => {
+  // totalStudents changed
+}, { immediate: true });
+
+// Watch itemsPerPage untuk debug
+watch(itemsPerPage, (newVal, oldVal) => {
+  // itemsPerPage changed
+}, { immediate: true });
+
+// const tableKey = ref(0);
+
+
+// // Muat ulang saat nomor halaman berubah
+// // watch(currentPage, async (val, oldVal) => {
+// //   console.log('WATCHER: currentPage changed from', oldVal, 'to', val);
+// //   if (val !== oldVal) {
+// //     await load();
+// //   }
+// // });
+
+// // Computed properties untuk pagination
+// const itemsPerPageNormalized = computed(() => {
+//   return itemsPerPage.value === -1 ? totalStudents.value : itemsPerPage.value;
+// });
+
+// const pageCount = computed(() => {
+//   if (totalStudents.value === 0) return 1;
+//   const count = Math.ceil(totalStudents.value / itemsPerPageNormalized.value);
+//   console.log('pageCount computed:', count, 'totalStudents:', totalStudents.value, 'itemsPerPageNormalized:', itemsPerPageNormalized.value);
+//   return count;
+// });
+
+// (v3) gunakan items-length, tidak perlu computed khusus
+
 const headers = [
   { title: 'NIS', value: 'nis' },
   { title: 'Nama', value: 'nama' },
@@ -365,9 +581,18 @@ const photoPreview = ref<string>('');
 const fileInput = ref<HTMLInputElement>();
 
 // Filters
-const filters = reactive<{ search: string; kelas: string | null; status: string | null }>({ search: '', kelas: null, status: null });
-async function applyFilters() { await load(); }
-function resetFilters() { filters.search = ''; filters.kelas = null; filters.status = null; load(); }
+async function applyFilters() { 
+  currentPage.value = 1; // Reset to first page
+  await load(); 
+}
+
+async function resetFilters() { 
+  filters.search = ''; 
+  filters.kelas = null; 
+  filters.status = null; 
+  currentPage.value = 1; // Reset to first page
+  await load(); 
+}
 
 // Inline edit state
 const inlineEdit = reactive<{ id: number | null; field: string | null; value: any }>({ id: null, field: null, value: null });
@@ -396,17 +621,40 @@ function toPublicUrl(path: string) {
   const url = `${base}/${path}`;
   return url;
 }
-function qrThumb(item: any) { if (!item?.qr_value) return ''; ensureQrThumb(item.qr_value); return qrDataUrlFrom(item.qr_value); }
+function qrThumb(item: any) { 
+  const qrValue = item?.qr_value || item?.nis || '';
+  if (!qrValue) return '/src/assets/images/no-qr.png'; // fallback image
+  ensureQrThumb(qrValue); 
+  return qrDataUrlFrom(qrValue); 
+}
 const qrPreview = reactive<{ open: boolean; url: string }>({ open: false, url: '' });
 async function previewQr(item: any) {
-  if (!item?.qr_value) return;
-  await ensureQrLarge(item.qr_value);
-  qrPreview.url = qrLargeCache[item.qr_value];
+  const qrValue = item?.qr_value || item?.nis || '';
+  if (!qrValue) {
+    alert('QR Code tidak tersedia untuk siswa ini');
+    return;
+  }
+  await ensureQrLarge(qrValue);
+  qrPreview.url = qrLargeCache[qrValue];
   qrPreview.open = true;
 }
 function qrDataUrlFrom(val: string) { return qrCache[val] || ''; }
 const qrCache: Record<string,string> = {};
 const qrLargeCache: Record<string,string> = {};
+
+function handleQrError(event: Event) {
+  console.error('QR image failed to load:', event);
+  // Hide the broken image
+  const img = event.target as HTMLImageElement;
+  img.style.display = 'none';
+}
+
+function handleQrPreviewError(event: Event) {
+  console.error('QR preview image failed to load:', event);
+  // Close the preview dialog
+  qrPreview.open = false;
+  alert('Gagal memuat QR Code preview');
+}
 
 function syncQr() {
   // QR otomatis mengikuti NIS
@@ -450,12 +698,22 @@ function handleDrop(event: DragEvent) {
 // Generate small QR thumbnails for table (cache for performance)
 async function ensureQrThumb(val: string) {
   if (!val || qrCache[val]) return;
-  qrCache[val] = await QRCode.toDataURL(String(val), { width: 64, margin: 0 });
+  try {
+    qrCache[val] = await QRCode.toDataURL(String(val), { width: 64, margin: 0 });
+  } catch (error) {
+    console.error('Error generating QR thumbnail:', error);
+    qrCache[val] = ''; // fallback to empty string
+  }
 }
 
 async function ensureQrLarge(val: string) {
   if (!val || qrLargeCache[val]) return;
-  qrLargeCache[val] = await QRCode.toDataURL(String(val), { width: 280, margin: 1 });
+  try {
+    qrLargeCache[val] = await QRCode.toDataURL(String(val), { width: 280, margin: 1 });
+  } catch (error) {
+    console.error('Error generating QR large:', error);
+    qrLargeCache[val] = ''; // fallback to empty string
+  }
 }
 
 watch(() => form.identity.tanggal_lahir, () => {
@@ -551,20 +809,95 @@ function confirmDelete(item: Student) {
 }
 
 async function doDelete(id: number) {
-  await deleteStudent(id);
-  await load();
+  try {
+    await deleteStudent(id);
+    await load();
+  } catch (error: any) {
+    console.error('Error deleting student:', error);
+    alert('Gagal menghapus data: ' + (error?.response?.data?.message || error.message));
+  }
 }
 
 async function load() {
   loading.value = true;
   try {
-    students.value = await fetchStudents({ search: filters.search || undefined, kelas: filters.kelas || undefined, status: filters.status || undefined });
+    const response = await fetchStudents({ 
+      page: currentPage.value,
+      perPage: itemsPerPage.value === -1 ? -1 : itemsPerPage.value,
+      search: filters.search || undefined, 
+      kelas: filters.kelas || undefined, 
+      status: filters.status || undefined 
+    });
+
+    if (response.success && response.data) {
+      // data utama
+      students.value = response.data.data || [];
+
+      // ambil total asli dari API
+      if (response.data.total) {
+        totalStudents.value = response.data.total;
+      } else {
+        // fallback manual biar pagination bisa next
+        if (itemsPerPage.value === -1) {
+          // Jika ALL, totalStudents = jumlah data yang diterima
+          totalStudents.value = students.value.length;
+        } else {
+          totalStudents.value =
+            (currentPage.value - 1) * itemsPerPage.value + students.value.length;
+        }
+      }
+      
+      // Data loaded successfully
+    } else {
+      students.value = [];
+      totalStudents.value = 0;
+    }
+
+    // Pagination debug info
+
     // Pre-generate QR thumbs
-    for (const s of students.value as any[]) { await ensureQrThumb(s.qr_value); }
+    for (const s of students.value as any[]) { 
+      await ensureQrThumb(s.qr_value); 
+    }
+    
+    // Force DOM update
+    await nextTick();
+    
+    // Force update pagination info
+    await nextTick();
+    
   } finally {
     loading.value = false;
   }
 }
+
+function goToPage(page: number) {
+  if (page < 1 || page > totalPages.value) {
+    return;
+  }
+  
+  if (page === currentPage.value) {
+    return;
+  }
+  
+  currentPage.value = page;
+  load();
+}
+
+function onItemsPerPageChange(newItemsPerPage: number) {
+  itemsPerPage.value = newItemsPerPage;
+  
+  // Jika ALL, reset ke halaman 1 dan load semua data
+  if (newItemsPerPage === -1) {
+    currentPage.value = 1;
+  } else {
+    currentPage.value = 1; // Reset to first page
+  }
+  
+  load();
+}
+
+
 
 function addWali() {
   form.wali.push({ nama: '', hubungan: '', pekerjaan: '', no_hp: '', alamat: '' });
@@ -629,5 +962,164 @@ function downloadTemplate() {
   URL.revokeObjectURL(url);
 }
 </script>
+
+<style scoped>
+/* Ensure table shows all data without height restrictions */
+.v-data-table {
+  max-height: none !important;
+}
+
+.v-data-table :deep(.v-table) {
+  max-height: none !important;
+}
+
+.v-data-table :deep(.v-table__wrapper) {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Ensure all rows are visible */
+.v-data-table :deep(.v-data-table__wrapper) {
+  max-height: none !important;
+}
+
+/* Student Avatar Styles */
+.student-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  background: #f5f5f5;
+  border-radius: 50%;
+}
+
+/* Responsive table */
+.v-data-table {
+  overflow-x: auto;
+}
+
+.v-data-table :deep(.v-table) {
+  min-width: 800px;
+}
+
+/* Pagination container */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.pagination-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pagination-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pagination-info {
+  white-space: nowrap;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  min-width: 32px !important;
+}
+
+/* Responsive pagination */
+@media (max-width: 768px) {
+  .v-data-table :deep(.v-table) {
+    min-width: 600px;
+  }
+  
+  .pagination-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  
+  .pagination-left {
+    justify-content: center;
+  }
+  
+  .pagination-right {
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .pagination-controls {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .v-data-table :deep(.v-table) {
+    min-width: 500px;
+  }
+  
+  /* Hide QR Code column on very small screens */
+  .v-data-table :deep(.v-table th:nth-child(5)),
+  .v-data-table :deep(.v-table td:nth-child(5)) {
+    display: none;
+  }
+  
+  .pagination-controls {
+    gap: 2px;
+  }
+  
+  .pagination-btn {
+    min-width: 28px !important;
+    font-size: 12px;
+  }
+  
+  /* Hide some pagination buttons on very small screens */
+  .pagination-btn:first-child,
+  .pagination-btn:last-child {
+    display: none;
+  }
+}
+</style>
+
+
 
 

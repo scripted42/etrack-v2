@@ -21,9 +21,10 @@ export interface PaginatedResponse<T> {
 
 export async function fetchStudents(params: { page?: number; perPage?: number; status?: string; kelas?: string; search?: string } = {}) {
   const { page = 1, perPage = 10, status, kelas, search } = params;
-  const res = await api.get('/students', { params: { page, per_page: perPage, status, kelas, search } });
-  // Try both plain data or {data: {data: []}}
-  return res.data?.data?.data ?? res.data?.data ?? res.data;
+  const per_page = perPage === -1 ? -1 : perPage; // -1 berarti ALL, kirim -1 ke backend
+  const res = await api.get('/students', { params: { page, per_page, status, kelas, search } });
+  // Return the full response for pagination handling
+  return res.data;
 }
 
 export async function fetchStudent(id: number) {

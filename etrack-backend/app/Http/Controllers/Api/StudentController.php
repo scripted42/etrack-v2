@@ -49,11 +49,38 @@ class StudentController extends Controller
             });
         }
 
-        $students = $query->paginate($request->get('per_page', 15));
+        $perPage = $request->get('per_page', 10);
+        
+        // Handle per_page = -1 (show all)
+        if ($perPage == -1) {
+            $students = $query->get();
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'data' => $students,
+                    'total' => $students->count(),
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => -1,
+                    'from' => 1,
+                    'to' => $students->count()
+                ]
+            ]);
+        }
+        
+        $students = $query->paginate($perPage);
 
         return response()->json([
             'success' => true,
-            'data' => $students
+            'data' => [
+                'data' => $students->items(),
+                'total' => $students->total(),
+                'current_page' => $students->currentPage(),
+                'last_page' => $students->lastPage(),
+                'per_page' => $students->perPage(),
+                'from' => $students->firstItem(),
+                'to' => $students->lastItem()
+            ]
         ]);
     }
 
@@ -139,7 +166,7 @@ class StudentController extends Controller
                     'name' => $request->name,
                     'email' => $fallbackEmail,
                     'password' => Hash::make($request->password),
-                    'role_id' => 5, // Siswa role
+                    'role_id' => 3, // Siswa role
                     'status' => 'aktif',
                 ]);
             }

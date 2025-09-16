@@ -16,6 +16,8 @@ class Employee extends Model
         'nama',
         'jabatan',
         'status',
+        'photo_path',
+        'qr_value',
     ];
 
     /**
@@ -24,5 +26,29 @@ class Employee extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the employee's identity.
+     */
+    public function identity()
+    {
+        return $this->hasOne(EmployeeIdentity::class);
+    }
+
+    /**
+     * Get the employee's contact.
+     */
+    public function contact()
+    {
+        return $this->hasOne(EmployeeContact::class);
+    }
+
+    /**
+     * Get the employee's families.
+     */
+    public function families()
+    {
+        return $this->hasMany(EmployeeFamily::class);
     }
 }

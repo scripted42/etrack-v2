@@ -1,0 +1,131 @@
+PAGINATION CODE LENGKAP - StudentList.vue
+===============================================
+
+1. TEMPLATE v-data-table:
+<v-data-table
+  :items="students"
+  :headers="headers"
+  :loading="loading"
+  density="comfortable"
+  fixed-header
+  :striped="true"
+  :hover="true"
+  class="elevation-1"
+  :show-select="false"
+  v-model:page="currentPage"
+  v-model:items-per-page="itemsPerPage"
+  :items-per-page-options="[10, 25, 50, 100, { value: -1, title: 'ALL' }]"
+  :server-items-length="totalStudents"
+  @update:page="onPageChange"
+  @update:items-per-page="onItemsPerPageChange"
+>
+
+2. REACTIVE VARIABLES:
+const totalStudents = ref(0);
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+
+3. LOAD FUNCTION (SOLUSI YANG DIPERBAIKI):
+async function load() {
+  loading.value = true;
+  try {
+    const response = await fetchStudents({ 
+      page: currentPage.value,
+      perPage: itemsPerPage.value === -1 ? -1 : itemsPerPage.value,
+      search: filters.search || undefined, 
+      kelas: filters.kelas || undefined, 
+      status: filters.status || undefined 
+    });
+
+    if (response.success && response.data) {
+      // data utama
+      students.value = response.data.data || [];
+
+      // ambil total asli dari API
+      if (response.data.total) {
+        totalStudents.value = response.data.total;
+      } else {
+        // fallback manual biar pagination bisa next
+        totalStudents.value =
+          (currentPage.value - 1) * itemsPerPage.value + students.value.length;
+      }
+    } else {
+      students.value = [];
+      totalStudents.value = 0;
+    }
+
+    // 🔎 Console log untuk debug
+    console.log("currentPage", currentPage.value);
+    console.log("itemsPerPage", itemsPerPage.value);
+    console.log("students.length", students.value.length);
+    console.log("totalStudents", totalStudents.value);
+
+    // Pre-generate QR thumbs
+    for (const s of students.value as any[]) { 
+      await ensureQrThumb(s.qr_value); 
+    }
+    
+  } finally {
+    loading.value = false;
+  }
+}
+
+4. PAGINATION EVENT HANDLERS:
+function onPageChange(page: number) {
+  currentPage.value = page;
+  load();
+}
+
+function onItemsPerPageChange(itemsPerPage: number) {
+  currentPage.value = 1; // Reset to first page
+  load();
+}
+
+5. FILTER FUNCTIONS:
+async function applyFilters() { 
+  currentPage.value = 1; // Reset to first page
+  await load(); 
+}
+
+async function resetFilters() { 
+  filters.search = ''; 
+  filters.kelas = null; 
+  filters.status = null; 
+  currentPage.value = 1; // Reset to first page
+  await load(); 
+}
+
+FITUR PAGINATION:
+- Pilihan items per page: 10, 25, 50, 100, ALL
+- Server-side pagination dengan API
+- Auto reset ke halaman 1 saat filter
+- Event handlers untuk page change dan items per page change
+- Loading state saat pindah halaman
+
+CHECKLIST PAGINATION VUETIFY (SERVER-SIDE):
+============================================
+
+✅ PROPS WAJIB DIISI BENAR:
+:items="students"
+:server-items-length="totalStudents"
+v-model:page="currentPage"
+v-model:items-per-page="itemsPerPage"
+
+✅ TOTALSTUDENTS HARUS > JUMLAH ITEM PER HALAMAN:
+- Kalau itemsPerPage = 10 dan totalStudents = 18, harus muncul 2 halaman
+- Kalau tetap 1 halaman, berarti totalStudents masih 10
+
+✅ UPDATE STATE SETELAH LOAD:
+- Pastikan currentPage dan itemsPerPage ikut dipakai waktu set totalStudents
+- Ambil total asli dari API response.data.total
+- Fallback manual jika API belum support total
+
+🔎 CARA NGECEK CEPAT:
+Console log hasil:
+- currentPage: 1
+- itemsPerPage: 10  
+- students.length: 10
+- totalStudents: 18 (HARUS 18, bukan 10!)
+
+➝ Saat currentPage=1, itemsPerPage=10, students.length=10, maka totalStudents harus 18.
+Kalau totalStudents tetap 10, tombol NEXT pasti mati.

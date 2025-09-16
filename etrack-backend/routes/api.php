@@ -40,8 +40,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/students/import', [StudentImportController::class, 'import']);
     Route::post('/students/{student}/photo', [StudentController::class, 'updatePhoto']);
 
-    // Employee routes
-    Route::apiResource('employees', EmployeeController::class);
+// Employee routes
+Route::post('/employees/import', [App\Http\Controllers\Api\EmployeeImportController::class, 'import']);
+Route::get('/employees/template', [App\Http\Controllers\Api\EmployeeImportController::class, 'downloadTemplate']);
+Route::apiResource('employees', EmployeeController::class);
+Route::post('/employees/{employee}/photo', [EmployeeController::class, 'updatePhoto']);
 
     // User management routes
     Route::apiResource('users', UserController::class);

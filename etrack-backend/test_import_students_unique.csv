@@ -1,0 +1,3 @@
+nis,nama,kelas,status,qr_value,nik,nisn,tempat_lahir,tanggal_lahir,jenis_kelamin,agama,alamat,kota,provinsi,kode_pos,no_hp,email,wali_nama,wali_hubungan,wali_no_hp,wali_alamat,wali_pekerjaan
+93001,John Doe,X IPA 1,aktif,93001,3201234567890007,1234567897,Denpasar,2009-07-15,L,Islam,Jl. Contoh No. 7,Denpasar,Bali,12351,081234567897,93001@student.local,Robert Doe,Ayah,081234567896,Jl. Wali No. 7,Petani
+93002,Jane Smith,X IPA 2,aktif,93002,3201234567890008,1234567898,Makassar,2009-08-20,P,Islam,Jl. Contoh No. 8,Makassar,Sulawesi Selatan,12352,081234567898,93002@student.local,Mary Smith,Ibu,081234567897,Jl. Wali No. 8,Perawat

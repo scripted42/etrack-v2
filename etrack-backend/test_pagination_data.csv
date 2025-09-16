@@ -1,0 +1,6 @@
+nis,nama,kelas,status,qr_value,nik,nisn,tempat_lahir,tanggal_lahir,jenis_kelamin,agama,alamat,kota,provinsi,kode_pos,no_hp,email,wali_nama,wali_hubungan,wali_no_hp,wali_alamat,wali_pekerjaan
+99001,Test Pagination 1,X IPA 1,aktif,99001,3201234567890020,1234567920,Jakarta,1/1/2010,L,Islam,Jl. Test No. 1,Jakarta,DKI Jakarta,12364,081234567920,99001@student.local,Test Parent 1,Ayah,081234567919,Jl. Test Wali No. 1,Test Job 1
+99002,Test Pagination 2,X IPA 2,aktif,99002,3201234567890021,1234567921,Bandung,2/2/2010,P,Kristen,Jl. Test No. 2,Bandung,Jawa Barat,12365,081234567921,99002@student.local,Test Parent 2,Ibu,081234567920,Jl. Test Wali No. 2,Test Job 2
+99003,Test Pagination 3,X IPA 3,aktif,99003,3201234567890022,1234567922,Surabaya,3/3/2010,L,Hindu,Jl. Test No. 3,Surabaya,Jawa Timur,12366,081234567922,99003@student.local,Test Parent 3,Ayah,081234567921,Jl. Test Wali No. 3,Test Job 3
+99004,Test Pagination 4,X IPA 4,aktif,99004,3201234567890023,1234567923,Yogyakarta,4/4/2010,P,Buddha,Jl. Test No. 4,Yogyakarta,DIY,12367,081234567923,99004@student.local,Test Parent 4,Ibu,081234567922,Jl. Test Wali No. 4,Test Job 4
+99005,Test Pagination 5,X IPA 5,aktif,99005,3201234567890024,1234567924,Medan,5/5/2010,L,Katolik,Jl. Test No. 5,Medan,Sumatera Utara,12368,081234567924,99005@student.local,Test Parent 5,Ayah,081234567923,Jl. Test Wali No. 5,Test Job 5

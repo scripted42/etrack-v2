@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API</title>
+</head>
+<body>
+    <h1>Test API Employees</h1>
+    <button onclick="testLogin()">Test Login</button>
+    <button onclick="testEmployees()">Test Employees</button>
+    <div id="result"></div>
+
+    <script>
+        let token = '';
+
+        async function testLogin() {
+            try {
+                const response = await fetch('http://localhost:8000/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'admin2',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('Login response:', data);
+                
+                if (data.success) {
+                    token = data.data.token;
+                    document.getElementById('result').innerHTML = '<p>Login berhasil! Token: ' + token.substring(0, 20) + '...</p>';
+                } else {
+                    document.getElementById('result').innerHTML = '<p>Login gagal: ' + data.message + '</p>';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('result').innerHTML = '<p>Login error: ' + error.message + '</p>';
+            }
+        }
+
+        async function testEmployees() {
+            if (!token) {
+                document.getElementById('result').innerHTML = '<p>Silakan login dulu!</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8000/api/employees', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                console.log('Employees response:', data);
+                
+                if (data.success) {
+                    const employees = data.data.data || data.data || data;
+                    let html = '<h3>Data Pegawai:</h3><ul>';
+                    employees.forEach(emp => {
+                        html += '<li>' + emp.nama + ' (' + emp.jabatan + ')</li>';
+                    });
+                    html += '</ul>';
+                    document.getElementById('result').innerHTML = html;
+                } else {
+                    document.getElementById('result').innerHTML = '<p>Gagal mengambil data: ' + data.message + '</p>';
+                }
+            } catch (error) {
+                console.error('Employees error:', error);
+                document.getElementById('result').innerHTML = '<p>Employees error: ' + error.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>
+
+

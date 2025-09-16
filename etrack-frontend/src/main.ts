@@ -20,11 +20,12 @@ import '@fontsource/public-sans/700.css';
 import { fakeBackend } from '@/utils/helpers/fake-backend';
 
 const app = createApp(App);
-fakeBackend();
+// fakeBackend(); // Disabled for debugging
 app.use(createPinia());
 app.use(router);
 app.use(PerfectScrollbarPlugin);
 app.use(VueTablerIcons);
 app.use(Antd);
 app.use(VueApexCharts);
-app.use(vuetify).mount('#app');
+app.use(vuetify);
+app.mount('#app');

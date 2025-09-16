@@ -100,8 +100,26 @@ class StudentImportController extends Controller
 
             DB::beginTransaction();
             try {
+                // Convert date format to MySQL format (YYYY-MM-DD)
+                $tanggal_lahir_mysql = null;
+                if ($tanggal_lahir) {
+                    // Handle DD/MM/YYYY format (Indonesian format)
+                    if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $tanggal_lahir, $matches)) {
+                        $day = str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+                        $month = str_pad($matches[2], 2, '0', STR_PAD_LEFT);
+                        $year = $matches[3];
+                        $tanggal_lahir_mysql = $year . '-' . $month . '-' . $day;
+                    } else {
+                        // Try other formats with strtotime
+                        $ts = strtotime($tanggal_lahir);
+                        if ($ts) {
+                            $tanggal_lahir_mysql = date('Y-m-d', $ts);
+                        }
+                    }
+                }
+                
                 $year = null;
-                if ($tanggal_lahir) { $ts = strtotime($tanggal_lahir); if ($ts) { $year = date('Y', $ts); } }
+                if ($tanggal_lahir_mysql) { $year = date('Y', strtotime($tanggal_lahir_mysql)); }
                 $password = $nis . ($year ?? '');
                 if (strlen($password) < 8) { $password = str_pad($nis, 8, '0'); }
 
@@ -111,7 +129,7 @@ class StudentImportController extends Controller
                         'name' => $nama,
                         'email' => $existingUser->email ?: ($nis.'@student.local'),
                         'password' => Hash::make($password),
-                        'role_id' => 5,
+                        'role_id' => 3, // Siswa role
                         'status' => 'aktif',
                     ]);
                     $user = $existingUser;
@@ -121,7 +139,7 @@ class StudentImportController extends Controller
                         'name' => $nama,
                         'email' => $nis.'@student.local',
                         'password' => Hash::make($password),
-                        'role_id' => 5,
+                        'role_id' => 3, // Siswa role
                         'status' => 'aktif',
                     ]);
                 }
@@ -135,13 +153,13 @@ class StudentImportController extends Controller
                     'qr_value' => $qr !== '' ? $qr : $nis,
                 ]);
 
-                if ($nik || $nisn || $tempat_lahir || $tanggal_lahir || $jenis_kelamin || $agama) {
+                if ($nik || $nisn || $tempat_lahir || $tanggal_lahir_mysql || $jenis_kelamin || $agama) {
                     StudentIdentity::create([
                         'student_id' => $student->id,
                         'nik' => $nik ?: null,
                         'nisn' => $nisn ?: null,
                         'tempat_lahir' => $tempat_lahir ?: null,
-                        'tanggal_lahir' => $tanggal_lahir ?: null,
+                        'tanggal_lahir' => $tanggal_lahir_mysql ?: null,
                         'jenis_kelamin' => in_array($jenis_kelamin, ['L','P']) ? $jenis_kelamin : null,
                         'agama' => $agama ?: null,
                     ]);

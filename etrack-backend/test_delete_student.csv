@@ -1,0 +1,2 @@
+nis,nama,kelas,status,qr_value,nik,nisn,tempat_lahir,tanggal_lahir,jenis_kelamin,agama,alamat,kota,provinsi,kode_pos,no_hp,email,wali_nama,wali_hubungan,wali_no_hp,wali_alamat,wali_pekerjaan
+95001,Test Delete,X IPA 1,aktif,95001,3201234567890011,1234567911,Test City,2009-11-15,L,Islam,Jl. Test No. 1,Test City,Test Province,12355,081234567911,95001@student.local,Test Parent,Ayah,081234567910,Jl. Test Wali No. 1,Test Job

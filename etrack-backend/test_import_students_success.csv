@@ -1,0 +1,3 @@
+nis,nama,kelas,status,qr_value,nik,nisn,tempat_lahir,tanggal_lahir,jenis_kelamin,agama,alamat,kota,provinsi,kode_pos,no_hp,email,wali_nama,wali_hubungan,wali_no_hp,wali_alamat,wali_pekerjaan
+94001,Alice Johnson,X IPA 1,aktif,94001,3201234567890009,1234567899,Pontianak,2009-09-15,L,Islam,Jl. Contoh No. 9,Pontianak,Kalimantan Barat,12353,081234567899,94001@student.local,David Johnson,Ayah,081234567898,Jl. Wali No. 9,Dokter
+94002,Bob Wilson,X IPA 2,aktif,94002,3201234567890010,1234567900,Manado,2009-10-20,P,Islam,Jl. Contoh No. 10,Manado,Sulawesi Utara,12354,081234567900,94002@student.local,Sarah Wilson,Ibu,081234567899,Jl. Wali No. 10,Arsitek

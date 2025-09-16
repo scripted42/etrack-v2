@@ -1,0 +1,3 @@
+nis,nama,kelas,status,qr_value,nik,nisn,tempat_lahir,tanggal_lahir,jenis_kelamin,agama,alamat,kota,provinsi,kode_pos,no_hp,email,wali_nama,wali_hubungan,wali_no_hp,wali_alamat,wali_pekerjaan
+91003,Andi Pratama,X IPA 1,aktif,91003,3201234567890003,1234567893,Surabaya,2009-03-15,L,Islam,Jl. Contoh No. 3,Surabaya,Jawa Timur,12347,081234567893,91003@student.local,Budi Pratama,Ayah,081234567892,Jl. Wali No. 3,Wiraswasta
+91004,Siti Rahayu,X IPA 2,aktif,91004,3201234567890004,1234567894,Yogyakarta,2009-04-20,P,Islam,Jl. Contoh No. 4,Yogyakarta,DIY,12348,081234567894,91004@student.local,Sari Rahayu,Ibu,081234567893,Jl. Wali No. 4,Guru
