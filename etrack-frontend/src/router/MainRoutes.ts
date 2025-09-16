@@ -8,7 +8,7 @@ const MainRoutes = {
     {
       name: 'Dashboard',
       path: '',
-      component: () => import('@/views/DashboardSimple.vue')
+      component: () => import('@/views/DashboardImproved.vue')
     },
     {
       name: 'Students',
@@ -26,13 +26,13 @@ const MainRoutes = {
       component: () => import('@/views/StarterPage.vue')
     },
     {
-      name: 'Reports',
-      path: '/reports',
-      component: () => import('@/views/StarterPage.vue')
-    },
-    {
       name: 'AuditLogs',
       path: '/audit-logs',
+      component: () => import('@/views/AuditTrailImproved.vue')
+    },
+    {
+      name: 'Reports',
+      path: '/reports',
       component: () => import('@/views/StarterPage.vue')
     },
     {

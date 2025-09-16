@@ -1,6 +1,8 @@
 <template>
   <div>
-    <BaseBreadcrumb :title="'Dashboard'" :breadcrumb="breadcrumbs" />
+    <div class="mb-4">
+      <h1>Dashboard</h1>
+    </div>
     
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-8">
@@ -358,12 +360,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import { fetchDashboardStats } from '@/services/dashboard';
 
-const breadcrumbs = [
-  { title: 'Dashboard', to: '/dashboard' }
-];
+// Breadcrumbs removed for simplicity
 
 const loading = ref(true);
 const stats = ref<any>({

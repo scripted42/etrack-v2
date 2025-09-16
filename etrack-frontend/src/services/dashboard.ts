@@ -93,7 +93,7 @@ export interface SystemHealth {
 }
 
 export async function fetchDashboardStats(): Promise<{ success: boolean; data: DashboardStats }> {
-  const res = await api.get('/dashboard/statistics');
+  const res = await api.get('/dashboard');
   return res.data;
 }
 

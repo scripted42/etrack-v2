@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\AuditLog;
+use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -38,12 +39,11 @@ class AuthController extends Controller
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             // Log failed login attempt
-            AuditLog::create([
-                'user_id' => null,
-                'action' => 'LOGIN_FAILED',
-                'details' => ['username' => $request->username],
-                'ip_address' => $request->ip(),
-            ]);
+            AuditService::logSecurity('LOGIN_FAILED', [
+                'username' => $request->username,
+                'reason' => 'invalid_credentials',
+                'severity' => 'medium'
+            ], null, $request);
 
             throw ValidationException::withMessages([
                 'username' => ['Kredensial tidak valid.'],
@@ -63,11 +63,9 @@ class AuthController extends Controller
         $token = $user->createToken('auth-token')->plainTextToken;
 
         // Log successful login
-        AuditLog::create([
-            'user_id' => $user->id,
-            'action' => 'LOGIN_SUCCESS',
-            'details' => ['username' => $user->username],
-            'ip_address' => $request->ip(),
+        AuditService::logAuth('LOGIN_SUCCESS', $user, $request, [
+            'username' => $user->username,
+            'role' => $user->role->name ?? 'unknown'
         ]);
 
         return response()->json([
@@ -88,11 +86,9 @@ class AuthController extends Controller
         $user = $request->user();
 
         // Log logout
-        AuditLog::create([
-            'user_id' => $user->id,
-            'action' => 'LOGOUT',
-            'details' => ['username' => $user->username],
-            'ip_address' => $request->ip(),
+        AuditService::logAuth('LOGOUT', $user, $request, [
+            'username' => $user->username,
+            'role' => $user->role->name ?? 'unknown'
         ]);
 
         $request->user()->currentAccessToken()->delete();

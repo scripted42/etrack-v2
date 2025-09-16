@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\User;
 use App\Models\AuditLog;
+use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
@@ -196,16 +197,13 @@ class StudentController extends Controller
             }
 
             // Log activity
-            AuditLog::create([
-                'user_id' => $user->id,
-                'action' => 'CREATE_STUDENT',
-                'details' => [
-                    'student_id' => $student->id,
-                    'nis' => $student->nis,
-                    'nama' => $student->nama,
-                ],
-                'ip_address' => $request->ip(),
-            ]);
+            // Log student creation
+            AuditService::logCrud('create', 'Student', $student->id, [
+                'nis' => $student->nis,
+                'nama' => $student->nama,
+                'kelas' => $student->kelas,
+                'status' => $student->status
+            ], $user, $request);
 
             DB::commit();
 
@@ -319,6 +317,14 @@ class StudentController extends Controller
 
             DB::commit();
 
+            // Log student update
+            AuditService::logCrud('update', 'Student', $student->id, [
+                'nis' => $student->nis,
+                'nama' => $student->nama,
+                'kelas' => $student->kelas,
+                'status' => $student->status
+            ], $user, $request);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data siswa berhasil diperbarui',
@@ -403,17 +409,13 @@ class StudentController extends Controller
 
         DB::beginTransaction();
         try {
-            // Log activity before deletion
-            AuditLog::create([
-                'user_id' => $user->id,
-                'action' => 'DELETE_STUDENT',
-                'details' => [
-                    'student_id' => $student->id,
-                    'nis' => $student->nis,
-                    'nama' => $student->nama,
-                ],
-                'ip_address' => $request->ip(),
-            ]);
+            // Log student deletion
+            AuditService::logCrud('delete', 'Student', $student->id, [
+                'nis' => $student->nis,
+                'nama' => $student->nama,
+                'kelas' => $student->kelas,
+                'status' => $student->status
+            ], $user, $request);
 
             // Hapus user agar username (NIS) tidak tertinggal dan menghalangi import ulang
             if ($student->user) {

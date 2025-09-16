@@ -52,4 +52,6 @@ Route::post('/employees/{employee}/photo', [EmployeeController::class, 'updatePh
     // Audit log routes
     Route::get('/audit-logs', [AuditLogController::class, 'index']);
     Route::get('/audit-logs/{auditLog}', [AuditLogController::class, 'show']);
+    Route::get('/audit-logs/statistics/overview', [AuditLogController::class, 'statistics']);
+    Route::post('/audit-logs/export', [AuditLogController::class, 'export']);
 });
