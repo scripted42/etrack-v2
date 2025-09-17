@@ -129,8 +129,11 @@ const fetchData = async () => {
     // Fetch real data from API
     const response = await api.get('/dashboard')
     
+    console.log('Student Growth API Response:', response.data)
+    
     if (response.data.success) {
       const data = response.data.data
+      console.log('Student Growth Data:', data)
       
       // Process student growth data
       if (data.student_growth) {

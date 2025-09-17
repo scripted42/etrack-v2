@@ -135,19 +135,22 @@ const fetchData = async () => {
     // Fetch real data from API
     const response = await api.get('/dashboard')
     
+    console.log('Dashboard API Response:', response.data)
+    
     if (response.data.success) {
       const data = response.data.data
+      console.log('Dashboard Data:', data)
       
-      // Update statistics with real data
-      statistics.value[0].value = data.total_students || 0
-      statistics.value[1].value = data.total_employees || 0
-      statistics.value[2].value = data.active_students || 0
-      statistics.value[3].value = data.active_employees || 0
+      // Update statistics with real data from kpi section
+      statistics.value[0].value = data.kpi?.total_students || 0
+      statistics.value[1].value = data.kpi?.total_employees || 0
+      statistics.value[2].value = data.kpi?.active_students || 0
+      statistics.value[3].value = data.kpi?.active_employees || 0
       
       // Update chart data with real data
       chartData.value.datasets[0].data = [
-        data.total_students || 0,
-        data.total_employees || 0
+        data.kpi?.total_students || 0,
+        data.kpi?.total_employees || 0
       ]
       
       // Wait for DOM update
