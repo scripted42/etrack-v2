@@ -1,7 +1,7 @@
 <template>
   <v-card class="pa-4" elevation="2">
     <v-card-title class="d-flex align-center mb-4">
-      <v-icon color="primary" class="mr-2">mdi-chart-pie</v-icon>
+      <v-icon color="primary" class="mr-2">mdi-chart-pie-outline</v-icon>
       <span>Statistik Data</span>
     </v-card-title>
     
@@ -12,7 +12,7 @@
     <div v-else-if="error" class="d-flex justify-center align-center" style="height: 300px;">
       <v-alert type="error" variant="tonal">
         <div class="text-center">
-          <v-icon class="mb-2">mdi-alert-circle</v-icon>
+          <v-icon class="mb-2">mdi-alert-circle-outline</v-icon>
           <div>{{ error }}</div>
         </div>
       </v-alert>
@@ -62,25 +62,25 @@ const statistics = ref([
   {
     label: 'Total Siswa',
     value: 0,
-    icon: 'mdi-account-group',
+    icon: 'mdi-account-multiple',
     color: 'primary'
   },
   {
     label: 'Total Pegawai',
     value: 0,
-    icon: 'mdi-account-tie',
+    icon: 'mdi-account-tie-outline',
     color: 'success'
   },
   {
     label: 'Siswa Aktif',
     value: 0,
-    icon: 'mdi-account-check',
+    icon: 'mdi-account-check-outline',
     color: 'info'
   },
   {
     label: 'Pegawai Aktif',
     value: 0,
-    icon: 'mdi-account-star',
+    icon: 'mdi-account-star-outline',
     color: 'warning'
   }
 ])
@@ -146,6 +146,8 @@ const fetchData = async () => {
       statistics.value[1].value = data.kpi?.total_employees || 0
       statistics.value[2].value = data.kpi?.active_students || 0
       statistics.value[3].value = data.kpi?.active_employees || 0
+      
+      console.log('Updated statistics:', statistics.value)
       
       // Update chart data with real data
       chartData.value.datasets[0].data = [

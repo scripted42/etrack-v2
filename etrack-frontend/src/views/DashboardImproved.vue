@@ -19,14 +19,14 @@
           <v-card color="primary" variant="tonal" class="h-100">
             <v-card-text class="d-flex align-center">
               <v-avatar color="primary" size="48" class="mr-4">
-                <v-icon color="white" size="24">mdi:school</v-icon>
+                <v-icon color="white" size="24">mdi-school</v-icon>
               </v-avatar>
               <div>
                 <div class="text-h4 font-weight-bold">{{ stats.kpi?.total_students || 0 }}</div>
                 <div class="text-body-2 font-weight-medium">Total Siswa</div>
                 <div class="text-caption text-grey">Siswa aktif di sekolah</div>
                 <div class="text-caption text-success mt-1">
-                  <v-icon size="16" class="mr-1">mdi:check-circle</v-icon>
+                  <v-icon size="16" class="mr-1">mdi-check-circle</v-icon>
                   Data terbaru
                 </div>
               </div>
@@ -38,14 +38,14 @@
           <v-card color="success" variant="tonal" class="h-100">
             <v-card-text class="d-flex align-center">
               <v-avatar color="success" size="48" class="mr-4">
-                <v-icon color="white" size="24">mdi:account-group</v-icon>
+                <v-icon color="white" size="24">mdi-account-multiple</v-icon>
               </v-avatar>
               <div>
                 <div class="text-h4 font-weight-bold">{{ stats.kpi?.total_employees || 0 }}</div>
                 <div class="text-body-2 font-weight-medium">Total Pegawai</div>
                 <div class="text-caption text-grey">Guru dan staff sekolah</div>
                 <div class="text-caption text-success mt-1">
-                  <v-icon size="16" class="mr-1">mdi:check-circle</v-icon>
+                  <v-icon size="16" class="mr-1">mdi-check-circle</v-icon>
                   Semua aktif
                 </div>
               </div>
@@ -57,14 +57,14 @@
           <v-card color="info" variant="tonal" class="h-100">
             <v-card-text class="d-flex align-center">
               <v-avatar color="info" size="48" class="mr-4">
-                <v-icon color="white" size="24">mdi:chart-line</v-icon>
+                <v-icon color="white" size="24">mdi-chart-line</v-icon>
               </v-avatar>
               <div>
                 <div class="text-h4 font-weight-bold">{{ stats.kpi?.utilization_rate || 0 }}%</div>
                 <div class="text-body-2 font-weight-medium">Kapasitas Sekolah</div>
                 <div class="text-caption text-grey">Dari {{ stats.kpi?.max_capacity || 500 }} siswa</div>
                 <div class="text-caption text-info mt-1">
-                  <v-icon size="16" class="mr-1">mdi:information</v-icon>
+                  <v-icon size="16" class="mr-1">mdi-information</v-icon>
                   Masih banyak ruang
                 </div>
               </div>
@@ -76,14 +76,14 @@
           <v-card color="warning" variant="tonal" class="h-100">
             <v-card-text class="d-flex align-center">
               <v-avatar color="warning" size="48" class="mr-4">
-                <v-icon color="white" size="24">mdi:account-supervisor</v-icon>
+                <v-icon color="white" size="24">mdi-account-supervisor-circle</v-icon>
               </v-avatar>
               <div>
                 <div class="text-h4 font-weight-bold">{{ stats.kpi?.teacher_student_ratio?.ratio || 0 }}</div>
                 <div class="text-body-2 font-weight-medium">Rasio Guru-Siswa</div>
                 <div class="text-caption text-grey">Standar ISO: ≤20:1</div>
                 <div class="text-caption text-success mt-1">
-                  <v-icon size="16" class="mr-1">mdi:star</v-icon>
+                  <v-icon size="16" class="mr-1">mdi-star</v-icon>
                   Sangat baik
                 </div>
               </div>
@@ -98,7 +98,7 @@
         <v-col cols="12" md="6">
           <v-card class="h-100">
             <v-card-title class="d-flex align-center">
-              <v-icon class="mr-2" color="primary">mdi:chart-pie</v-icon>
+              <v-icon class="mr-2" color="primary">mdi-chart-pie</v-icon>
               Distribusi Siswa per Tingkat
               <v-spacer></v-spacer>
               <v-chip color="primary" variant="tonal" size="small">
@@ -129,7 +129,7 @@
                 </div>
               </div>
               <div v-else class="text-center text-grey py-4">
-                <v-icon size="48" color="grey">mdi:chart-pie-outline</v-icon>
+                <v-icon size="48" color="grey">mdi-chart-pie-outline</v-icon>
                 <div class="text-h6 mt-2">Belum ada data siswa</div>
                 <div class="text-caption">Data distribusi akan muncul setelah ada siswa</div>
               </div>
@@ -141,7 +141,7 @@
         <v-col cols="12" md="6">
           <v-card class="h-100">
             <v-card-title class="d-flex align-center">
-              <v-icon class="mr-2" color="success">mdi:account-group</v-icon>
+              <v-icon class="mr-2" color="success">mdi-account-multiple</v-icon>
               Analisis Kepegawaian
               <v-spacer></v-spacer>
               <v-chip color="success" variant="tonal" size="small">
@@ -220,7 +220,7 @@
                 </v-alert>
               </div>
               <div v-else class="text-center text-grey py-4">
-                <v-icon size="48" color="grey">mdi:account-group-outline</v-icon>
+                <v-icon size="48" color="grey">mdi-account-multiple-outline</v-icon>
                 <div class="text-h6 mt-2">Belum ada data pegawai</div>
                 <div class="text-caption">Data kepegawaian akan muncul setelah ada pegawai</div>
               </div>
@@ -234,7 +234,7 @@
         <v-col cols="12">
           <v-card>
             <v-card-title class="d-flex align-center">
-              <v-icon class="mr-2" color="primary">mdi:chart-bar</v-icon>
+              <v-icon class="mr-2" color="primary">mdi-chart-bar</v-icon>
               Indikator Kinerja Utama (KPI)
               <v-spacer></v-spacer>
               <v-chip color="primary" variant="tonal" size="small">
@@ -246,7 +246,7 @@
                 <v-row>
                   <v-col cols="12" md="3">
                     <v-card variant="outlined" class="text-center pa-4">
-                      <v-icon size="48" color="success" class="mb-2">mdi:database-check</v-icon>
+                      <v-icon size="48" color="success" class="mb-2">mdi-database-check</v-icon>
                       <div class="text-h4 font-weight-bold text-success">
                         {{ stats.quality.performance_indicators.data_completeness }}%
                       </div>
@@ -266,7 +266,7 @@
                   
                   <v-col cols="12" md="3">
                     <v-card variant="outlined" class="text-center pa-4">
-                      <v-icon size="48" color="info" class="mb-2">mdi:account-clock</v-icon>
+                      <v-icon size="48" color="info" class="mb-2">mdi-account-clock</v-icon>
                       <div class="text-h4 font-weight-bold text-info">
                         {{ stats.quality.performance_indicators.activity_rate }}%
                       </div>
@@ -286,7 +286,7 @@
                   
                   <v-col cols="12" md="3">
                     <v-card variant="outlined" class="text-center pa-4">
-                      <v-icon size="48" color="primary" class="mb-2">mdi:school</v-icon>
+                      <v-icon size="48" color="primary" class="mb-2">mdi-school</v-icon>
                       <div class="text-h4 font-weight-bold text-primary">
                         {{ stats.quality.performance_indicators.utilization_rate }}%
                       </div>
@@ -306,7 +306,7 @@
                   
                   <v-col cols="12" md="3">
                     <v-card variant="outlined" class="text-center pa-4">
-                      <v-icon size="48" color="success" class="mb-2">mdi:heart-pulse</v-icon>
+                      <v-icon size="48" color="success" class="mb-2">mdi-heart-pulse</v-icon>
                       <div class="text-h4 font-weight-bold text-success">
                         {{ stats.quality.performance_indicators.system_health }}%
                       </div>
@@ -326,7 +326,7 @@
                 </v-row>
               </div>
               <div v-else class="text-center text-grey py-4">
-                <v-icon size="48" color="grey">mdi:chart-bar</v-icon>
+                <v-icon size="48" color="grey">mdi-chart-bar</v-icon>
                 <div class="text-h6 mt-2">Belum ada data KPI</div>
                 <div class="text-caption">Indikator kinerja akan muncul setelah ada data</div>
               </div>
@@ -350,7 +350,7 @@
         <v-col cols="12" md="6">
           <v-card>
             <v-card-title class="d-flex align-center">
-              <v-icon class="mr-2" color="info">mdi:trending-up</v-icon>
+              <v-icon class="mr-2" color="info">mdi-trending-up</v-icon>
               Trend Pertumbuhan
               <v-spacer></v-spacer>
               <v-chip color="info" variant="tonal" size="small">
@@ -389,7 +389,7 @@
         <v-col cols="12" md="6">
           <v-card>
             <v-card-title class="d-flex align-center">
-              <v-icon class="mr-2" color="warning">mdi:lightbulb-on</v-icon>
+              <v-icon class="mr-2" color="warning">mdi-lightbulb-on</v-icon>
               Rekomendasi & Insight
             </v-card-title>
             <v-card-text>
@@ -405,7 +405,7 @@
               </div>
               
               <div v-if="getInsights().length === 0" class="text-center text-grey py-4">
-                <v-icon size="48" color="grey">mdi:lightbulb-outline</v-icon>
+                <v-icon size="48" color="grey">mdi-lightbulb-outline</v-icon>
                 <div class="text-h6 mt-2">Sistem berjalan dengan baik</div>
                 <div class="text-caption">Tidak ada rekomendasi khusus saat ini</div>
               </div>
@@ -530,9 +530,9 @@ function getTrendColor(): string {
 function getTrendIcon(): string {
   const direction = getTrendDirection();
   switch (direction) {
-    case 'increasing': return 'mdi:trending-up';
-    case 'decreasing': return 'mdi:trending-down';
-    default: return 'mdi:trending-neutral';
+    case 'increasing': return 'mdi-trending-up';
+    case 'decreasing': return 'mdi-trending-down';
+    default: return 'mdi-trending-neutral';
   }
 }
 

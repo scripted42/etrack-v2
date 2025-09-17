@@ -141,6 +141,10 @@ const fetchData = async () => {
         const totalStudents = data.student_growth.total_students || []
         const newStudents = data.student_growth.new_students || []
         
+        console.log('Years:', years)
+        console.log('Total Students:', totalStudents)
+        console.log('New Students:', newStudents)
+        
         chartData.value = {
           labels: years,
           datasets: [
