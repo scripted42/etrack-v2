@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\StudentImportController;
+use App\Http\Controllers\Api\ImportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,4 +67,11 @@ Route::post('/employees/{employee}/photo', [EmployeeController::class, 'updatePh
     Route::post('/backups/{filename}/restore', [BackupController::class, 'restore']);
     Route::get('/backups/{filename}/download', [BackupController::class, 'download']);
     Route::delete('/backups/{filename}', [BackupController::class, 'destroy']);
+
+    // Import routes
+    Route::post('/import/students', [ImportController::class, 'importStudents']);
+    Route::post('/import/employees', [ImportController::class, 'importEmployees']);
+    Route::get('/import/students/template', [ImportController::class, 'downloadStudentTemplate']);
+    Route::get('/import/employees/template', [ImportController::class, 'downloadEmployeeTemplate']);
+    Route::get('/import/history', [ImportController::class, 'getImportHistory']);
 });
