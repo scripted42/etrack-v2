@@ -19,14 +19,14 @@
           <v-card color="primary" variant="tonal" class="h-100">
             <v-card-text class="d-flex align-center">
               <v-avatar color="primary" size="48" class="mr-4">
-                <v-icon color="white" size="24">mdi:backup-restore</v-icon>
+                <v-icon color="white" size="24">mdi-backup-restore</v-icon>
               </v-avatar>
               <div>
                 <div class="text-h4 font-weight-bold">{{ statistics?.total_backups || 0 }}</div>
                 <div class="text-body-2 font-weight-medium">Total Backups</div>
                 <div class="text-caption text-grey">File backup tersimpan</div>
                 <div class="text-caption text-success mt-1">
-                  <v-icon size="16" class="mr-1">mdi:check-circle</v-icon>
+                  <v-icon size="16" class="mr-1">mdi-check-circle</v-icon>
                   Sistem aktif
                 </div>
               </div>
@@ -38,14 +38,14 @@
           <v-card color="success" variant="tonal" class="h-100">
             <v-card-text class="d-flex align-center">
               <v-avatar color="success" size="48" class="mr-4">
-                <v-icon color="white" size="24">mdi:harddisk</v-icon>
+                <v-icon color="white" size="24">mdi-harddisk</v-icon>
               </v-avatar>
               <div>
                 <div class="text-h4 font-weight-bold">{{ statistics?.total_size_formatted || '0 B' }}</div>
                 <div class="text-body-2 font-weight-medium">Total Size</div>
                 <div class="text-caption text-grey">Ukuran semua backup</div>
                 <div class="text-caption text-info mt-1">
-                  <v-icon size="16" class="mr-1">mdi:information</v-icon>
+                  <v-icon size="16" class="mr-1">mdi-information</v-icon>
                   {{ statistics?.compression_enabled ? 'Compressed' : 'Uncompressed' }}
                 </div>
               </div>
@@ -57,14 +57,14 @@
           <v-card color="info" variant="tonal" class="h-100">
             <v-card-text class="d-flex align-center">
               <v-avatar color="info" size="48" class="mr-4">
-                <v-icon color="white" size="24">mdi:clock-outline</v-icon>
+                <v-icon color="white" size="24">mdi-clock-outline</v-icon>
               </v-avatar>
               <div>
                 <div class="text-h4 font-weight-bold">{{ getLastBackupAge() }}</div>
                 <div class="text-body-2 font-weight-medium">Last Backup</div>
                 <div class="text-caption text-grey">Backup terakhir</div>
                 <div class="text-caption text-warning mt-1">
-                  <v-icon size="16" class="mr-1">mdi:alert</v-icon>
+                  <v-icon size="16" class="mr-1">mdi-alert</v-icon>
                   {{ getLastBackupStatus() }}
                 </div>
               </div>
@@ -76,14 +76,14 @@
           <v-card color="warning" variant="tonal" class="h-100">
             <v-card-text class="d-flex align-center">
               <v-avatar color="warning" size="48" class="mr-4">
-                <v-icon color="white" size="24">mdi:settings</v-icon>
+                <v-icon color="white" size="24">mdi-settings</v-icon>
               </v-avatar>
               <div>
                 <div class="text-h4 font-weight-bold">{{ config?.max_backups || 30 }}</div>
                 <div class="text-body-2 font-weight-medium">Max Backups</div>
                 <div class="text-caption text-grey">Batas penyimpanan</div>
                 <div class="text-caption text-primary mt-1">
-                  <v-icon size="16" class="mr-1">mdi:cog</v-icon>
+                  <v-icon size="16" class="mr-1">mdi-cog</v-icon>
                   Auto cleanup
                 </div>
               </div>
@@ -97,7 +97,7 @@
         <v-col cols="12">
           <v-card>
             <v-card-title class="d-flex align-center">
-              <v-icon class="mr-2" color="primary">mdi:play-circle</v-icon>
+              <v-icon class="mr-2" color="primary">mdi-play-circle</v-icon>
               Quick Actions
             </v-card-title>
             <v-card-text>
@@ -107,9 +107,10 @@
                     color="primary"
                     variant="tonal"
                     block
-                    @click="createBackup('manual')"
+                    @click="createBackupAction('manual')"
                     :loading="creatingBackup"
-                    prepend-icon="mdi:backup-restore"
+                    :disabled="creatingBackup"
+                    prepend-icon="mdi-backup-restore"
                   >
                     Create Manual Backup
                   </v-btn>
@@ -119,9 +120,10 @@
                     color="success"
                     variant="tonal"
                     block
-                    @click="testBackupSystem"
+                    @click="testBackupSystemAction"
                     :loading="testingBackup"
-                    prepend-icon="mdi:test-tube"
+                    :disabled="testingBackup"
+                    prepend-icon="mdi-test-tube"
                   >
                     Test Backup System
                   </v-btn>
@@ -133,18 +135,18 @@
                     block
                     @click="refreshData"
                     :loading="loading"
-                    prepend-icon="mdi:refresh"
+                    prepend-icon="mdi-refresh"
                   >
                     Refresh Data
                   </v-btn>
                 </v-col>
                 <v-col cols="12" md="3">
                   <v-btn
-                    color="warning"
+                    color="secondary"
                     variant="tonal"
                     block
                     @click="showConfigDialog = true"
-                    prepend-icon="mdi:cog"
+                    prepend-icon="mdi-cog"
                   >
                     Configuration
                   </v-btn>
@@ -160,7 +162,7 @@
         <v-col cols="12">
           <v-card>
             <v-card-title class="d-flex align-center">
-              <v-icon class="mr-2" color="primary">mdi:database</v-icon>
+              <v-icon class="mr-2" color="primary">mdi-database</v-icon>
               Backup Files
               <v-spacer></v-spacer>
               <v-chip color="primary" variant="tonal" size="small">
@@ -197,7 +199,7 @@
                     <div>
                       <div class="text-body-2">{{ item.size_formatted }}</div>
                       <div class="text-caption text-grey">
-                        <v-icon size="12" class="mr-1">mdi:package-variant</v-icon>
+                        <v-icon size="12" class="mr-1">mdi-package-variant</v-icon>
                         {{ item.compressed ? 'Compressed' : 'Raw' }}
                       </div>
                     </div>
@@ -219,7 +221,7 @@
                       variant="text"
                       color="primary"
                       @click="downloadBackup(item.filename)"
-                      prepend-icon="mdi:download"
+                      prepend-icon="mdi-download"
                     >
                       Download
                     </v-btn>
@@ -228,7 +230,7 @@
                       variant="text"
                       color="warning"
                       @click="confirmRestore(item)"
-                      prepend-icon="mdi:restore"
+                      prepend-icon="mdi-restore"
                     >
                       Restore
                     </v-btn>
@@ -237,7 +239,7 @@
                       variant="text"
                       color="error"
                       @click="confirmDelete(item)"
-                      prepend-icon="mdi:delete"
+                      prepend-icon="mdi-delete"
                     >
                       Delete
                     </v-btn>
@@ -245,7 +247,7 @@
                 </v-data-table>
               </div>
               <div v-else class="text-center text-grey py-8">
-                <v-icon size="64" color="grey">mdi:database-off</v-icon>
+                <v-icon size="64" color="grey">mdi-database-off</v-icon>
                 <div class="text-h6 mt-4">Tidak ada backup tersimpan</div>
                 <div class="text-caption">Buat backup pertama untuk memulai</div>
               </div>
@@ -259,7 +261,7 @@
         <v-col cols="12" md="6">
           <v-card>
             <v-card-title class="d-flex align-center">
-              <v-icon class="mr-2" color="success">mdi:chart-pie</v-icon>
+              <v-icon class="mr-2" color="success">mdi-chart-pie</v-icon>
               Backup by Type
             </v-card-title>
             <v-card-text>
@@ -286,7 +288,7 @@
                 </div>
               </div>
               <div v-else class="text-center text-grey py-4">
-                <v-icon size="48" color="grey">mdi:chart-pie-outline</v-icon>
+                <v-icon size="48" color="grey">mdi-chart-pie-outline</v-icon>
                 <div class="text-h6 mt-2">Belum ada data backup</div>
                 <div class="text-caption">Statistik akan muncul setelah ada backup</div>
               </div>
@@ -297,7 +299,7 @@
         <v-col cols="12" md="6">
           <v-card>
             <v-card-title class="d-flex align-center">
-              <v-icon class="mr-2" color="info">mdi:information</v-icon>
+              <v-icon class="mr-2" color="info">mdi-information</v-icon>
               System Information
             </v-card-title>
             <v-card-text>
@@ -442,6 +444,52 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Notification Popup Dialog -->
+    <v-dialog
+      v-model="notification.show"
+      max-width="400"
+      @click:outside="notification.show = false"
+    >
+      <v-card :color="getNotificationColor(notification.type)">
+        <v-card-title class="d-flex align-center justify-space-between">
+          <div class="d-flex align-center">
+            <v-icon 
+              :color="notification.type === 'success' ? 'green' : notification.type === 'error' ? 'red' : notification.type === 'warning' ? 'orange' : 'blue'"
+              size="24"
+              class="mr-3"
+            >
+              {{ getNotificationIcon(notification.type) }}
+            </v-icon>
+            <span class="text-h6 font-weight-bold">{{ notification.title }}</span>
+          </div>
+          <v-btn
+            icon
+            variant="text"
+            size="small"
+            @click="notification.show = false"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        
+        <v-card-text class="pt-2">
+          <div class="text-body-1">{{ notification.message }}</div>
+        </v-card-text>
+        
+        <v-card-actions class="justify-end">
+          <v-btn
+            color="white"
+            variant="text"
+            @click="notification.show = false"
+          >
+            <v-icon class="mr-2">mdi-check</v-icon>
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    
   </div>
 </template>
 
@@ -482,6 +530,14 @@ const showRestoreDialog = ref(false);
 const showDeleteDialog = ref(false);
 const showConfigDialog = ref(false);
 const selectedBackup = ref<BackupFile | null>(null);
+
+// Notification states
+const notification = ref({
+  show: false,
+  type: 'success' as 'success' | 'error' | 'warning' | 'info',
+  title: '',
+  message: ''
+});
 
 // Table headers
 const backupHeaders = [
@@ -527,28 +583,46 @@ async function refreshData() {
 }
 
 async function createBackupAction(type: string) {
+  console.log('=== CREATE BACKUP ACTION ===');
+  console.log('Type:', type);
   creatingBackup.value = true;
   try {
     const response = await createBackup(type);
+    console.log('Response:', response);
     if (response.success) {
       await loadData();
+      console.log('Showing success notification');
+      showNotification('success', 'Backup Berhasil!', `Backup ${type} berhasil dibuat.`);
+    } else {
+      console.log('Showing error notification');
+      showNotification('error', 'Backup Gagal!', response.message || 'Terjadi kesalahan saat membuat backup.');
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating backup:', error);
+    console.log('Showing error notification for catch');
+    showNotification('error', 'Backup Gagal!', error.response?.data?.message || error.message || 'Terjadi kesalahan saat membuat backup.');
   } finally {
     creatingBackup.value = false;
   }
 }
 
 async function testBackupSystemAction() {
+  console.log('=== TEST BACKUP SYSTEM ACTION ===');
   testingBackup.value = true;
   try {
     const response = await testBackupSystem();
+    console.log('Test response:', response);
     if (response.success) {
-      // Show success message
+      console.log('Showing success notification for test');
+      showNotification('success', 'Test Backup Berhasil!', 'Sistem backup berfungsi dengan baik.');
+    } else {
+      console.log('Showing error notification for test');
+      showNotification('error', 'Test Backup Gagal!', response.message || 'Terjadi kesalahan saat test backup system.');
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error testing backup system:', error);
+    console.log('Showing error notification for test catch');
+    showNotification('error', 'Test Backup Gagal!', error.response?.data?.message || error.message || 'Terjadi kesalahan saat test backup system.');
   } finally {
     testingBackup.value = false;
   }
@@ -568,9 +642,16 @@ async function restoreBackup() {
     if (response.success) {
       showRestoreDialog.value = false;
       await loadData();
+      // Show success notification
+      showNotification('success', 'Database berhasil di-restore!', 'Data database telah berhasil dipulihkan dari backup.');
+    } else {
+      // Show error notification
+      showNotification('error', 'Gagal restore database', response.message || 'Terjadi kesalahan saat restore database.');
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error restoring backup:', error);
+    // Show error notification
+    showNotification('error', 'Gagal restore database', error.response?.data?.message || error.message || 'Terjadi kesalahan saat restore database.');
   } finally {
     restoringBackup.value = false;
   }
@@ -633,6 +714,48 @@ function getBackupTypeDescription(type: string): string {
     'monthly': 'Backup bulanan terjadwal'
   };
   return descriptions[type] || 'Backup sistem';
+}
+
+// Notification function
+function getNotificationColor(type: string): string {
+  switch (type) {
+    case 'success': return 'green-lighten-4';
+    case 'error': return 'red-lighten-4';
+    case 'warning': return 'orange-lighten-4';
+    case 'info': return 'blue-lighten-4';
+    default: return 'grey-lighten-4';
+  }
+}
+
+function getNotificationIcon(type: string): string {
+  switch (type) {
+    case 'success': return 'mdi-check-circle';
+    case 'error': return 'mdi-alert-circle';
+    case 'warning': return 'mdi-alert';
+    case 'info': return 'mdi-information';
+    default: return 'mdi-bell';
+  }
+}
+
+function showNotification(type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) {
+  console.log('=== SHOW NOTIFICATION ===');
+  console.log('Type:', type);
+  console.log('Title:', title);
+  console.log('Message:', message);
+  
+  notification.value = {
+    show: true,
+    type,
+    title,
+    message
+  };
+  
+  console.log('Notification state:', notification.value);
+  
+  // Auto hide after 8 seconds for popup
+  setTimeout(() => {
+    notification.value.show = false;
+  }, 8000);
 }
 
 // Lifecycle

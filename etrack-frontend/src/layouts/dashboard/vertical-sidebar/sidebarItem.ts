@@ -5,7 +5,7 @@ import {
   TeamOutlined,
   FileTextOutlined,
   HistoryOutlined,
-  BackupOutlined,
+  CloudUploadOutlined,
   SettingOutlined,
   LogoutOutlined,
   BookOutlined,
@@ -71,7 +71,7 @@ const sidebarItem: menu[] = [
     },
     {
       title: 'Backup & Restore',
-      icon: BackupOutlined,
+      icon: CloudUploadOutlined,
       to: '/backup',
       permission: 'view_backups'
     },

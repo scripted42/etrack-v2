@@ -22,11 +22,11 @@ class CreateAdminUserSeeder extends Seeder
 
         // Create a new admin user if not exists
         User::firstOrCreate(
-            ['username' => 'admin2'],
+            ['username' => 'admin'],
             [
-                'name' => 'Administrator 2',
-                'email' => 'admin2@smpn14sby.sch.id',
-                'password' => Hash::make('password123'),
+                'name' => 'Administrator',
+                'email' => 'admin@smpn14sby.sch.id',
+                'password' => Hash::make('admin123'),
                 'role_id' => $adminRole->id,
                 'status' => 'aktif',
             ]

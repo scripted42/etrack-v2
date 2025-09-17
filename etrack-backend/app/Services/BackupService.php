@@ -43,13 +43,22 @@ class BackupService
             $username = $dbConfig['username'];
             $password = $dbConfig['password'];
 
-            // Build mysqldump command
+            // Create temporary MySQL config file to avoid password in command line
+            $configFile = storage_path('app/temp_mysql_config.cnf');
+            $configContent = sprintf(
+                "[client]\nhost=%s\nport=%s\nuser=%s\npassword=%s\n",
+                $host,
+                $port,
+                $username,
+                $password
+            );
+            file_put_contents($configFile, $configContent);
+            chmod($configFile, 0600); // Secure permissions
+
+            // Build mysqldump command with config file
             $command = sprintf(
-                'mysqldump --host=%s --port=%s --user=%s --password=%s --single-transaction --routines --triggers %s > %s',
-                escapeshellarg($host),
-                escapeshellarg($port),
-                escapeshellarg($username),
-                escapeshellarg($password),
+                'mysqldump --defaults-file=%s --single-transaction --routines --triggers %s > %s',
+                escapeshellarg($configFile),
                 escapeshellarg($database),
                 escapeshellarg($filepath)
             );
@@ -58,6 +67,11 @@ class BackupService
             $output = [];
             $returnCode = 0;
             exec($command, $output, $returnCode);
+
+            // Clean up config file
+            if (file_exists($configFile)) {
+                unlink($configFile);
+            }
 
             if ($returnCode !== 0) {
                 throw new Exception("Backup command failed with return code: {$returnCode}");
@@ -166,9 +180,11 @@ class BackupService
                 $restoreFile = $filepath;
             }
 
-            // Build mysql command for restore
+            // Build mysql command for restore with full path
+            $mysqlPath = 'C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe';
             $command = sprintf(
-                'mysql --host=%s --port=%s --user=%s --password=%s %s < %s',
+                '"%s" --host=%s --port=%s --user=%s --password=%s %s < %s',
+                $mysqlPath,
                 escapeshellarg($host),
                 escapeshellarg($port),
                 escapeshellarg($username),
@@ -177,10 +193,50 @@ class BackupService
                 escapeshellarg($restoreFile)
             );
 
-            // Execute restore command
+            // Execute restore command with timeout
             $output = [];
             $returnCode = 0;
-            exec($command, $output, $returnCode);
+            
+            // Use proc_open for better control and timeout
+            $descriptorspec = [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w']
+            ];
+            
+            $process = proc_open($command, $descriptorspec, $pipes);
+            
+            if (is_resource($process)) {
+                // Close input pipe
+                fclose($pipes[0]);
+                
+                // Set timeout (60 seconds)
+                $timeout = 60;
+                $startTime = time();
+                
+                while (time() - $startTime < $timeout) {
+                    $status = proc_get_status($process);
+                    if (!$status['running']) {
+                        break;
+                    }
+                    usleep(100000); // Wait 100ms
+                }
+                
+                // Get output
+                $output = stream_get_contents($pipes[1]);
+                $error = stream_get_contents($pipes[2]);
+                
+                fclose($pipes[1]);
+                fclose($pipes[2]);
+                
+                $returnCode = proc_close($process);
+                
+                if ($error) {
+                    Log::warning("MySQL restore stderr", ['error' => $error]);
+                }
+            } else {
+                throw new Exception("Failed to start restore process");
+            }
 
             // Clean up temp file if created
             if ($tempFile && file_exists($tempFile)) {
@@ -425,19 +481,33 @@ class BackupService
             $username = $dbConfig['username'];
             $password = $dbConfig['password'];
 
-            // Test mysqldump command
+            // Create temporary MySQL config file for test
+            $configFile = storage_path('app/temp_mysql_test_config.cnf');
+            $configContent = sprintf(
+                "[client]\nhost=%s\nport=%s\nuser=%s\npassword=%s\n",
+                $host,
+                $port,
+                $username,
+                $password
+            );
+            file_put_contents($configFile, $configContent);
+            chmod($configFile, 0600); // Secure permissions
+
+            // Test mysqldump command with config file
             $command = sprintf(
-                'mysqldump --host=%s --port=%s --user=%s --password=%s --single-transaction --no-data %s',
-                escapeshellarg($host),
-                escapeshellarg($port),
-                escapeshellarg($username),
-                escapeshellarg($password),
+                'mysqldump --defaults-file=%s --single-transaction --no-data %s',
+                escapeshellarg($configFile),
                 escapeshellarg($database)
             );
 
             $output = [];
             $returnCode = 0;
             exec($command, $output, $returnCode);
+
+            // Clean up config file
+            if (file_exists($configFile)) {
+                unlink($configFile);
+            }
 
             if ($returnCode !== 0) {
                 throw new Exception("mysqldump test failed with return code: {$returnCode}");

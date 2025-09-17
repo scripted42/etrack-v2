@@ -61,7 +61,7 @@ class BackupController extends Controller
             $user = Auth::user();
 
             // Log backup creation attempt
-            AuditService::logActivity('BACKUP_CREATE', [
+            AuditService::log('BACKUP_CREATE', [
                 'type' => $type,
                 'user_id' => $user->id,
                 'username' => $user->username
@@ -71,7 +71,7 @@ class BackupController extends Controller
 
             if ($result['success']) {
                 // Log successful backup
-                AuditService::logActivity('BACKUP_CREATED', [
+                AuditService::log('BACKUP_CREATED', [
                     'filename' => $result['filename'],
                     'size' => $result['size_formatted'],
                     'type' => $type,
@@ -85,7 +85,7 @@ class BackupController extends Controller
                 ]);
             } else {
                 // Log failed backup
-                AuditService::logActivity('BACKUP_FAILED', [
+                AuditService::log('BACKUP_FAILED', [
                     'type' => $type,
                     'error' => $result['error']
                 ], $user, $request);
@@ -121,7 +121,7 @@ class BackupController extends Controller
             $user = Auth::user();
 
             // Log restore attempt
-            AuditService::logActivity('BACKUP_RESTORE', [
+            AuditService::log('BACKUP_RESTORE', [
                 'filename' => $filename,
                 'user_id' => $user->id,
                 'username' => $user->username
@@ -131,7 +131,7 @@ class BackupController extends Controller
 
             if ($result['success']) {
                 // Log successful restore
-                AuditService::logActivity('BACKUP_RESTORED', [
+                AuditService::log('BACKUP_RESTORED', [
                     'filename' => $filename,
                     'restored_at' => $result['restored_at']
                 ], $user, $request);
@@ -143,7 +143,7 @@ class BackupController extends Controller
                 ]);
             } else {
                 // Log failed restore
-                AuditService::logActivity('BACKUP_RESTORE_FAILED', [
+                AuditService::log('BACKUP_RESTORE_FAILED', [
                     'filename' => $filename,
                     'error' => $result['error']
                 ], $user, $request);
@@ -179,7 +179,7 @@ class BackupController extends Controller
             $user = Auth::user();
 
             // Log download attempt
-            AuditService::logActivity('BACKUP_DOWNLOAD', [
+            AuditService::log('BACKUP_DOWNLOAD', [
                 'filename' => $filename,
                 'user_id' => $user->id,
                 'username' => $user->username
@@ -189,7 +189,7 @@ class BackupController extends Controller
 
             if ($result['success']) {
                 // Log successful download
-                AuditService::logActivity('BACKUP_DOWNLOADED', [
+                AuditService::log('BACKUP_DOWNLOADED', [
                     'filename' => $filename,
                     'size' => $result['size']
                 ], $user, request());
@@ -234,7 +234,7 @@ class BackupController extends Controller
             $user = Auth::user();
 
             // Log delete attempt
-            AuditService::logActivity('BACKUP_DELETE', [
+            AuditService::log('BACKUP_DELETE', [
                 'filename' => $filename,
                 'user_id' => $user->id,
                 'username' => $user->username
@@ -244,7 +244,7 @@ class BackupController extends Controller
 
             if ($result['success']) {
                 // Log successful delete
-                AuditService::logActivity('BACKUP_DELETED', [
+                AuditService::log('BACKUP_DELETED', [
                     'filename' => $filename,
                     'deleted_at' => $result['deleted_at']
                 ], $user, request());
@@ -313,7 +313,7 @@ class BackupController extends Controller
             $user = Auth::user();
 
             // Log test attempt
-            AuditService::logActivity('BACKUP_TEST', [
+            AuditService::log('BACKUP_TEST', [
                 'user_id' => $user->id,
                 'username' => $user->username
             ], $user, request());
@@ -322,7 +322,7 @@ class BackupController extends Controller
 
             if ($result['success']) {
                 // Log successful test
-                AuditService::logActivity('BACKUP_TEST_SUCCESS', [
+                AuditService::log('BACKUP_TEST_SUCCESS', [
                     'tested_at' => $result['tested_at']
                 ], $user, request());
 
@@ -333,7 +333,7 @@ class BackupController extends Controller
                 ]);
             } else {
                 // Log failed test
-                AuditService::logActivity('BACKUP_TEST_FAILED', [
+                AuditService::log('BACKUP_TEST_FAILED', [
                     'error' => $result['error']
                 ], $user, request());
 
