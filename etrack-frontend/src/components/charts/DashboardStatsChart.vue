@@ -46,12 +46,12 @@ import {
   Tooltip,
   Legend
 } from 'chart.js'
-import { useApi } from '@/utils/helpers/api'
+import api from '@/services/api'
 
 // Register Chart.js components
 Chart.register(ArcElement, Tooltip, Legend)
 
-const api = useApi()
+// API instance is imported directly
 const chartCanvas = ref<HTMLCanvasElement>()
 const loading = ref(true)
 const error = ref('')
