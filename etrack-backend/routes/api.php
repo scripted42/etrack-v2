@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\StudentImportController;
 use App\Http\Controllers\Api\ImportController;
+use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\PermissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,4 +76,11 @@ Route::post('/employees/{employee}/photo', [EmployeeController::class, 'updatePh
     Route::get('/import/students/template', [ImportController::class, 'downloadStudentTemplate']);
     Route::get('/import/employees/template', [ImportController::class, 'downloadEmployeeTemplate']);
     Route::get('/import/history', [ImportController::class, 'getImportHistory']);
+
+    // Role management routes
+    Route::apiResource('roles', RoleController::class);
+    Route::get('/roles/{role}/statistics', [RoleController::class, 'getStatistics']);
+    Route::get('/permissions', [PermissionController::class, 'index']);
+    Route::get('/permissions/grouped', [PermissionController::class, 'getGroupedPermissions']);
+    Route::apiResource('permissions', PermissionController::class);
 });

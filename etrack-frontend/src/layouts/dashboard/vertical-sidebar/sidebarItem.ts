@@ -10,7 +10,9 @@ import {
   LogoutOutlined,
   BookOutlined,
   BankOutlined,
-  KeyOutlined
+  KeyOutlined,
+  ImportOutlined,
+  SafetyOutlined
 } from '@ant-design/icons-vue';
 
 export interface menu {
@@ -75,6 +77,18 @@ const sidebarItem: menu[] = [
       icon: CloudUploadOutlined,
       to: '/backup',
       permission: 'view_backups'
+    },
+    {
+      title: 'Import Data',
+      icon: ImportOutlined,
+      to: '/import',
+      permission: 'manage_students'
+    },
+    {
+      title: 'Role Management',
+      icon: SafetyOutlined,
+      to: '/role-management',
+      permission: 'manage_roles'
     },
   { header: 'Pengaturan' },
   {
