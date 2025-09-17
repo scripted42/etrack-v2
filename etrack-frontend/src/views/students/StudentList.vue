@@ -114,7 +114,7 @@
         </template>
 
         <template #item.actions="{ item }">
-          <div class="d-flex justify-center" style="gap:8px">
+          <div class="d-flex justify-center align-center" style="gap:8px">
             <v-btn size="small" variant="outlined" color="primary" @click="openEdit(item)">Edit</v-btn>
             <v-btn size="small" variant="outlined" color="error" @click="confirmDelete(item)">Hapus</v-btn>
           </div>

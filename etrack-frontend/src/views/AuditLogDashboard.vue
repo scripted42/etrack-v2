@@ -238,9 +238,16 @@
                 </template>
                 
                 <template v-slot:item.actions="{ item }">
-                  <v-btn @click="viewLog(item)" color="primary" size="small" variant="text">
-                    <v-icon>mdi:eye</v-icon>
-                  </v-btn>
+                  <div class="d-flex justify-center" style="gap:8px">
+                    <v-btn 
+                      @click="viewLog(item)" 
+                      color="primary" 
+                      size="small" 
+                      variant="outlined"
+                    >
+                      Detail
+                    </v-btn>
+                  </div>
                 </template>
               </v-data-table>
             </v-card-text>

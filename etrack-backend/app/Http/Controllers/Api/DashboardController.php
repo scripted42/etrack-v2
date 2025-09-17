@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Student;
 use App\Models\Employee;
 use App\Models\AuditLog;
+use App\Services\DataQualityService;
+use App\Services\SecurityMonitoringService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -519,26 +521,12 @@ class DashboardController extends Controller
      */
     private function getPerformanceIndicators(): array
     {
-        // KPI yang bisa dihitung dari data real aplikasi
+        // Use DataQualityService for better data quality calculation
+        $dataQuality = DataQualityService::calculateDataCompleteness();
+        $securityStats = SecurityMonitoringService::getSecurityStats();
         
-        // 1. Data Completeness Rate (dari data siswa dan pegawai)
-        $totalStudents = Student::count();
-        $studentsWithCompleteData = Student::whereHas('identity', function($query) {
-            $query->whereNotNull('nik')
-                  ->whereNotNull('tempat_lahir')
-                  ->whereNotNull('tanggal_lahir')
-                  ->whereNotNull('jenis_kelamin');
-        })->count();
-        
-        $totalEmployees = Employee::count();
-        $employeesWithCompleteData = Employee::whereNotNull('nama')
-            ->whereNotNull('jabatan')
-            ->whereNotNull('status')
-            ->count();
-        
-        $totalRecords = $totalStudents + $totalEmployees;
-        $completeRecords = $studentsWithCompleteData + $employeesWithCompleteData;
-        $dataCompleteness = $totalRecords > 0 ? round(($completeRecords / $totalRecords) * 100, 1) : 0;
+        // 1. Data Completeness Rate (improved calculation)
+        $dataCompleteness = $dataQuality['completeness_percentage'];
         
         // 2. System Activity Rate (berdasarkan login activity)
         $totalUsers = User::count();
@@ -547,19 +535,25 @@ class DashboardController extends Controller
         
         // 3. Data Utilization Rate (berapa banyak data yang digunakan)
         $totalCapacity = 500; // Kapasitas maksimal sekolah
-        $currentUtilization = $totalStudents;
+        $currentUtilization = $dataQuality['total_students'];
         $utilizationRate = round(($currentUtilization / $totalCapacity) * 100, 1);
         
         // 4. System Health Score (berdasarkan status pegawai dan kelengkapan data)
+        $totalEmployees = Employee::count();
         $activeEmployees = Employee::where('status', 'aktif')->count();
         $employeeHealth = $totalEmployees > 0 ? round(($activeEmployees / $totalEmployees) * 100, 1) : 0;
         $systemHealth = round(($dataCompleteness + $employeeHealth) / 2, 1);
+        
+        // 5. Security Score (from SecurityMonitoringService)
+        $securityScore = $securityStats['security_score'];
         
         return [
             'data_completeness' => $dataCompleteness,
             'activity_rate' => $activityRate,
             'utilization_rate' => $utilizationRate,
-            'system_health' => $systemHealth
+            'system_health' => $systemHealth,
+            'security_score' => $securityScore,
+            'quality_score' => DataQualityService::calculateQualityScore()
         ];
     }
     

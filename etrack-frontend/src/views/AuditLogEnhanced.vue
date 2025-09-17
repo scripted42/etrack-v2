@@ -24,7 +24,7 @@
       <v-alert-title>Error Loading Data</v-alert-title>
       {{ error }}
       <template v-slot:append>
-        <v-btn @click="loadData" color="error" variant="text" size="small">
+        <v-btn @click="loadData" color="error" variant="outlined" size="small">
           <v-icon class="mr-1">mdi:refresh</v-icon>
           Retry
         </v-btn>
@@ -120,7 +120,7 @@
             </v-col>
             
             <v-col cols="12" md="2">
-              <v-btn @click="applyFilters" color="primary" block>
+              <v-btn @click="applyFilters" color="primary" variant="elevated" block size="default">
                 <v-icon class="mr-1">mdi:filter</v-icon>
                 Apply
               </v-btn>
@@ -315,10 +315,10 @@
                     <v-btn 
                       @click="viewLogDetail(item)" 
                       color="primary" 
-                      variant="text" 
+                      variant="outlined" 
                       size="small"
                     >
-                      <v-icon>mdi:eye</v-icon>
+                      Detail
                     </v-btn>
                   </template>
                 </v-list-item>
@@ -349,7 +349,7 @@
             <div class="text-caption">{{ formatDate(selectedLog.created_at) }}</div>
           </div>
           <v-spacer></v-spacer>
-          <v-btn @click="showLogDialog = false" icon="mdi:close" variant="text" />
+          <v-btn @click="showLogDialog = false" icon="mdi:close" variant="outlined" size="small" />
         </v-card-title>
         
         <v-divider></v-divider>
@@ -442,7 +442,7 @@
         
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="showLogDialog = false" color="primary">
+          <v-btn @click="showLogDialog = false" color="primary" variant="elevated" size="default">
             Close
           </v-btn>
         </v-card-actions>
@@ -458,7 +458,7 @@
       <v-icon class="mr-2">{{ snackbar.icon }}</v-icon>
       {{ snackbar.message }}
       <template v-slot:actions>
-        <v-btn @click="snackbar.show = false" variant="text">
+        <v-btn @click="snackbar.show = false" variant="outlined" size="small">
           <v-icon>mdi:close</v-icon>
         </v-btn>
       </template>

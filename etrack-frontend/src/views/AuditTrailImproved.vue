@@ -243,11 +243,10 @@
                               {{ formatDateTime(log.created_at) }}
                             </div>
                             <v-btn
-                              size="x-small"
-                              variant="text"
+                              size="small"
+                              variant="outlined"
                               color="primary"
                               @click="showLogDetails(log)"
-                              prepend-icon="mdi:eye"
                             >
                               Detail
                             </v-btn>
@@ -329,11 +328,10 @@
                               {{ formatDateTime(log.created_at) }}
                             </div>
                             <v-btn
-                              size="x-small"
-                              variant="text"
+                              size="small"
+                              variant="outlined"
                               color="primary"
                               @click="showLogDetails(log)"
-                              prepend-icon="mdi:eye"
                             >
                               Detail
                             </v-btn>

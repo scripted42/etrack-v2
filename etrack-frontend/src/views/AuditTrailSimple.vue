@@ -149,11 +149,13 @@
                     </div>
                   </div>
                   <v-btn
-                    icon="mdi-chevron-down"
                     size="small"
-                    variant="text"
+                    variant="outlined"
+                    color="primary"
                     @click="toggleDetails(log.id)"
-                  ></v-btn>
+                  >
+                    {{ expandedLogs.includes(log.id) ? 'Tutup' : 'Detail' }}
+                  </v-btn>
                 </div>
                 
                 <!-- Details Panel -->
@@ -178,6 +180,7 @@
           <v-btn
             color="primary"
             variant="outlined"
+            size="default"
             @click="loadMoreLogs"
             :loading="loading"
           >

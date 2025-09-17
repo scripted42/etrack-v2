@@ -1,3 +1,4 @@
-nis,nama,kelas,status,qr_value,nik,nisn,tempat_lahir,tanggal_lahir,jenis_kelamin,agama,alamat,kota,provinsi,kode_pos,no_hp,email,wali_nama,wali_hubungan,wali_no_hp,wali_alamat,wali_pekerjaan
-91001,Rizky,X IPA 1,aktif,91001,3201234567890001,1234567891,Jakarta,2009-01-15,L,Islam,Jl. Contoh No. 1,Jakarta,DKI Jakarta,12345,081234567891,91001@student.local,John Doe,Ayah,081234567890,Jl. Wali No. 1,Karyawan
-91002,Donna,X IPA 2,aktif,91002,3201234567890002,1234567892,Bandung,2009-02-20,P,Islam,Jl. Contoh No. 2,Bandung,Jawa Barat,12346,081234567892,91002@student.local,Jane Doe,Ibu,081234567891,Jl. Wali No. 2,Ibu Rumah Tangga
+nis,nama,kelas,status,nisn,tempat_lahir,tanggal_lahir,jenis_kelamin,agama,no_hp,wali_nama,wali_hubungan,wali_no_hp
+91001,Rizky,7A,aktif,12345678,Surabaya,1/2/2012,L,Islam,811111111,Bapak Satu,Ayah,811111110
+91002,Donna,7B,aktif,12345679,Sidoarjo,3/4/2012,P,Kristen,822222222,Ibu Dua,Ibu,822222220
+91003,Ahmad Fauzi,8A,aktif,12345680,Malang,5/6/2011,L,Islam,833333333,Bapak Tiga,Ayah,833333330

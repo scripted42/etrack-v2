@@ -56,9 +56,9 @@ const MainRoutes = {
       component: () => import('@/views/authentication/ChangePassword.vue')
     },
     {
-      name: 'ImportData',
-      path: '/import',
-      component: () => import('@/views/ImportData.vue')
+      name: 'ExportData',
+      path: '/export-data',
+      component: () => import('@/views/ExportData.vue')
     },
     {
       name: 'RoleManagement',

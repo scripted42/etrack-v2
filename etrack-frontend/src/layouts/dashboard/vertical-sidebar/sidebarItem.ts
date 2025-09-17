@@ -11,8 +11,8 @@ import {
   BookOutlined,
   BankOutlined,
   KeyOutlined,
-  ImportOutlined,
-  SafetyOutlined
+  SafetyOutlined,
+  ExportOutlined
 } from '@ant-design/icons-vue';
 
 export interface menu {
@@ -79,10 +79,10 @@ const sidebarItem: menu[] = [
       permission: 'view_backups'
     },
     {
-      title: 'Import Data',
-      icon: ImportOutlined,
-      to: '/import',
-      permission: 'manage_students'
+      title: 'Export Data',
+      icon: ExportOutlined,
+      to: '/export-data',
+      permission: 'view_reports'
     },
     {
       title: 'Role Management',

@@ -11,8 +11,10 @@ use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\StudentImportController;
 use App\Http\Controllers\Api\ImportController;
+use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\PermissionController;
+use App\Http\Controllers\Api\DataQualityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,16 +27,20 @@ use App\Http\Controllers\Api\PermissionController;
 |
 */
 
-// Public routes
-Route::post('/login', [AuthController::class, 'login']);
+// Public routes with rate limiting
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:5,1'); // 5 attempts per minute
 
-// Protected routes
-Route::middleware('auth:sanctum')->group(function () {
+// Protected routes with rate limiting
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     // Auth routes
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::post('/validate-password', [AuthController::class, 'validatePassword']);
+    Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
+    Route::get('/security-stats', [AuthController::class, 'getSecurityStats']);
+    Route::post('/unlock-account/{userId}', [AuthController::class, 'unlockAccount']);
 
     // Dashboard routes
     Route::get('/dashboard', [DashboardController::class, 'index']);
@@ -77,10 +83,24 @@ Route::post('/employees/{employee}/photo', [EmployeeController::class, 'updatePh
     Route::get('/import/employees/template', [ImportController::class, 'downloadEmployeeTemplate']);
     Route::get('/import/history', [ImportController::class, 'getImportHistory']);
 
+    // Export routes
+    Route::get('/export/students', [ExportController::class, 'exportStudents']);
+    Route::get('/export/employees', [ExportController::class, 'exportEmployees']);
+    Route::get('/export/audit-trail', [ExportController::class, 'exportAuditTrail']);
+    Route::get('/export/history', [ExportController::class, 'getExportHistory']);
+
     // Role management routes
     Route::apiResource('roles', RoleController::class);
     Route::get('/roles/{role}/statistics', [RoleController::class, 'getStatistics']);
     Route::get('/permissions', [PermissionController::class, 'index']);
     Route::get('/permissions/grouped', [PermissionController::class, 'getGroupedPermissions']);
+
+    // Data Quality routes
+    Route::get('/data-quality/stats', [DataQualityController::class, 'getQualityStats']);
+    Route::get('/data-quality/incomplete', [DataQualityController::class, 'getIncompleteData']);
+    Route::get('/data-quality/validate', [DataQualityController::class, 'validateData']);
+    Route::post('/data-quality/auto-fix', [DataQualityController::class, 'autoFixData']);
+    Route::get('/data-quality/recommendations', [DataQualityController::class, 'getRecommendations']);
+    Route::get('/data-quality/completeness', [DataQualityController::class, 'calculateCompleteness']);
     Route::apiResource('permissions', PermissionController::class);
 });

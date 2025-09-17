@@ -5,14 +5,6 @@
       <v-card-title class="d-flex align-center">
         <v-icon color="primary" class="mr-3">mdi-shield-account</v-icon>
         <span>Manajemen Role & Permission</span>
-        <v-spacer></v-spacer>
-        <v-btn
-          color="primary"
-          prepend-icon="mdi-plus"
-          @click="openRoleDialog()"
-        >
-          Tambah Role
-        </v-btn>
       </v-card-title>
     </v-card>
 
@@ -56,21 +48,44 @@
       </v-col>
     </v-row>
 
+    <!-- Action Bar -->
+    <v-card class="mb-6">
+      <v-card-text class="pa-4">
+        <div class="d-flex align-center justify-space-between">
+          <div class="d-flex align-center">
+            <v-icon color="primary" class="mr-2">mdi-account-key</v-icon>
+            <span class="text-h6">Role & Permission Management</span>
+          </div>
+          <div class="d-flex align-center" style="gap: 12px;">
+            <v-btn
+              color="primary"
+              variant="outlined"
+              prepend-icon="mdi-refresh"
+              @click="refreshAllData"
+              :loading="loading"
+              size="default"
+            >
+              Refresh Data
+            </v-btn>
+            <v-btn
+              color="success"
+              variant="elevated"
+              prepend-icon="mdi-plus"
+              @click="openRoleDialog()"
+              size="default"
+            >
+              Tambah Role
+            </v-btn>
+          </div>
+        </div>
+      </v-card-text>
+    </v-card>
+
     <!-- Roles Table -->
     <v-card class="mb-6">
       <v-card-title class="d-flex align-center">
         <v-icon color="primary" class="mr-2">mdi-shield-account</v-icon>
         <span>Daftar Roles</span>
-        <v-spacer></v-spacer>
-        <v-btn
-          color="primary"
-          variant="outlined"
-          prepend-icon="mdi-refresh"
-          @click="loadRoles"
-          :loading="loading"
-        >
-          Refresh
-        </v-btn>
       </v-card-title>
       <v-card-text>
         <v-data-table
@@ -98,17 +113,24 @@
           </template>
           
           <template v-slot:item.actions="{ item }">
-            <v-btn
-              icon="mdi-pencil"
-              size="small"
-              @click="openRoleDialog(item)"
-            ></v-btn>
-            <v-btn
-              icon="mdi-delete"
-              size="small"
-              color="error"
-              @click="deleteRole(item)"
-            ></v-btn>
+            <div class="d-flex justify-center align-center" style="gap:8px">
+              <v-btn
+                size="small"
+                variant="outlined"
+                color="primary"
+                @click="openRoleDialog(item)"
+              >
+                Edit
+              </v-btn>
+              <v-btn
+                size="small"
+                variant="outlined"
+                color="error"
+                @click="deleteRole(item)"
+              >
+                Hapus
+              </v-btn>
+            </div>
           </template>
         </v-data-table>
       </v-card-text>
@@ -122,8 +144,10 @@
         <v-spacer></v-spacer>
         <v-btn
           color="success"
+          variant="elevated"
           prepend-icon="mdi-plus"
           @click="openPermissionDialog()"
+          size="default"
         >
           Tambah Permission
         </v-btn>
@@ -145,17 +169,24 @@
           </template>
           
           <template v-slot:item.actions="{ item }">
-            <v-btn
-              icon="mdi-pencil"
-              size="small"
-              @click="openPermissionDialog(item)"
-            ></v-btn>
-            <v-btn
-              icon="mdi-delete"
-              size="small"
-              color="error"
-              @click="deletePermission(item)"
-            ></v-btn>
+            <div class="d-flex justify-center align-center" style="gap:8px">
+              <v-btn
+                size="small"
+                variant="outlined"
+                color="primary"
+                @click="openPermissionDialog(item)"
+              >
+                Edit
+              </v-btn>
+              <v-btn
+                size="small"
+                variant="outlined"
+                color="error"
+                @click="deletePermission(item)"
+              >
+                Hapus
+              </v-btn>
+            </div>
           </template>
         </v-data-table>
       </v-card-text>
@@ -202,17 +233,41 @@
               multiple
               chips
               variant="outlined"
-            ></v-select>
+            >
+              <template v-slot:prepend-item>
+                <div class="text-caption pa-2">
+                  Debug: {{ permissions.length }} permissions loaded
+                </div>
+              </template>
+              <template v-slot:item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template v-slot:title>
+                    {{ item.raw.display_name || item.raw.name }}
+                  </template>
+                  <template v-slot:subtitle>
+                    {{ item.raw.description || item.raw.name }}
+                  </template>
+                </v-list-item>
+              </template>
+            </v-select>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="roleDialog = false">Batal</v-btn>
+          <v-btn 
+            variant="outlined" 
+            @click="roleDialog = false"
+            size="default"
+          >
+            Batal
+          </v-btn>
           <v-btn
             color="primary"
+            variant="elevated"
             @click="saveRole"
             :loading="saving"
             :disabled="!roleFormValid"
+            size="default"
           >
             Simpan
           </v-btn>
@@ -261,12 +316,20 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="permissionDialog = false">Batal</v-btn>
+          <v-btn 
+            variant="outlined" 
+            @click="permissionDialog = false"
+            size="default"
+          >
+            Batal
+          </v-btn>
           <v-btn
             color="primary"
+            variant="elevated"
             @click="savePermission"
             :loading="saving"
             :disabled="!permissionFormValid"
+            size="default"
           >
             Simpan
           </v-btn>
@@ -347,11 +410,31 @@ const loadRoles = async () => {
   }
 }
 
+const refreshAllData = async () => {
+  await Promise.all([
+    loadRoles(),
+    loadPermissions(),
+    loadStatistics()
+  ])
+}
+
 const loadPermissions = async () => {
   try {
     loadingPermissions.value = true
     const response = await api.get('/permissions')
-    permissions.value = response.data.data || []
+    console.log('Permissions API Response:', response.data)
+    
+    // Check if response has data property
+    if (response.data && response.data.data) {
+      permissions.value = response.data.data
+    } else if (response.data && Array.isArray(response.data)) {
+      permissions.value = response.data
+    } else {
+      permissions.value = []
+    }
+    
+    console.log('Permissions loaded:', permissions.value)
+    console.log('First permission structure:', permissions.value[0])
   } catch (error) {
     console.error('Error loading permissions:', error)
   } finally {
@@ -488,3 +571,29 @@ onMounted(() => {
   loadStatistics()
 })
 </script>
+
+<style scoped>
+/* Button centering */
+.d-flex.justify-center {
+  justify-content: center;
+}
+
+.d-flex.align-center {
+  align-items: center;
+}
+
+/* Table action buttons */
+.v-data-table .v-btn {
+  margin: 0 2px;
+}
+
+/* Consistent button spacing */
+.v-btn {
+  transition: all 0.3s ease;
+}
+
+.v-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>

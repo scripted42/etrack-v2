@@ -29,6 +29,9 @@ class User extends Authenticatable
         'role_id',
         'status',
         'last_login',
+        'last_activity',
+        'failed_login_attempts',
+        'locked_until',
     ];
 
     /**
@@ -52,6 +55,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_login' => 'datetime',
+            'last_activity' => 'datetime',
+            'locked_until' => 'datetime',
         ];
     }
 

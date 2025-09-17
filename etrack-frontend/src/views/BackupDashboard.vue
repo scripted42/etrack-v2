@@ -105,12 +105,13 @@
                 <v-col cols="12" md="3">
                   <v-btn
                     color="primary"
-                    variant="tonal"
+                    variant="elevated"
                     block
                     @click="createBackupAction('manual')"
                     :loading="creatingBackup"
                     :disabled="creatingBackup"
                     prepend-icon="mdi-backup-restore"
+                    size="default"
                   >
                     Create Manual Backup
                   </v-btn>
@@ -118,12 +119,13 @@
                 <v-col cols="12" md="3">
                   <v-btn
                     color="success"
-                    variant="tonal"
+                    variant="elevated"
                     block
                     @click="testBackupSystemAction"
                     :loading="testingBackup"
                     :disabled="testingBackup"
                     prepend-icon="mdi-test-tube"
+                    size="default"
                   >
                     Test Backup System
                   </v-btn>
@@ -131,11 +133,12 @@
                 <v-col cols="12" md="3">
                   <v-btn
                     color="info"
-                    variant="tonal"
+                    variant="elevated"
                     block
                     @click="refreshData"
                     :loading="loading"
                     prepend-icon="mdi-refresh"
+                    size="default"
                   >
                     Refresh Data
                   </v-btn>
@@ -143,10 +146,11 @@
                 <v-col cols="12" md="3">
                   <v-btn
                     color="secondary"
-                    variant="tonal"
+                    variant="elevated"
                     block
                     @click="showConfigDialog = true"
                     prepend-icon="mdi-cog"
+                    size="default"
                   >
                     Configuration
                   </v-btn>
@@ -218,7 +222,7 @@
                   <template v-slot:item.actions="{ item }">
                     <v-btn
                       size="small"
-                      variant="text"
+                      variant="outlined"
                       color="primary"
                       @click="downloadBackup(item.filename)"
                       prepend-icon="mdi-download"
@@ -227,7 +231,7 @@
                     </v-btn>
                     <v-btn
                       size="small"
-                      variant="text"
+                      variant="outlined"
                       color="warning"
                       @click="confirmRestore(item)"
                       prepend-icon="mdi-restore"
@@ -236,7 +240,7 @@
                     </v-btn>
                     <v-btn
                       size="small"
-                      variant="text"
+                      variant="outlined"
                       color="error"
                       @click="confirmDelete(item)"
                       prepend-icon="mdi-delete"

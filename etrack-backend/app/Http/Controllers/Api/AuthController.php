@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\AuditLog;
 use App\Services\AuditService;
 use App\Services\PasswordPolicyService;
+use App\Services\SecurityMonitoringService;
 use App\Rules\StrongPassword;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -39,13 +40,26 @@ class AuthController extends Controller
             ->orWhere('email', $request->username)
             ->first();
 
+        // Check if account is locked
+        if ($user && SecurityMonitoringService::checkAccountLockout($user)) {
+            throw ValidationException::withMessages([
+                'username' => ['Akun terkunci. Coba lagi dalam ' . $user->locked_until->diffForHumans()],
+            ]);
+        }
+
         if (!$user || !Hash::check($request->password, $user->password)) {
-            // Log failed login attempt
-            AuditService::logSecurity('LOGIN_FAILED', [
-                'username' => $request->username,
-                'reason' => 'invalid_credentials',
-                'severity' => 'medium'
-            ], null, $request);
+            // Monitor failed login attempt
+            SecurityMonitoringService::monitorFailedLogin($request->username, $request->ip(), $request);
+            
+            // Increment failed attempts for existing user
+            if ($user) {
+                $user->increment('failed_login_attempts');
+                
+                // Lock account after 5 failed attempts
+                if ($user->failed_login_attempts >= 5) {
+                    SecurityMonitoringService::lockAccount($user);
+                }
+            }
 
             throw ValidationException::withMessages([
                 'username' => ['Kredensial tidak valid.'],
@@ -56,6 +70,11 @@ class AuthController extends Controller
             throw ValidationException::withMessages([
                 'username' => ['Akun tidak aktif.'],
             ]);
+        }
+
+        // Reset failed attempts on successful login
+        if ($user->failed_login_attempts > 0) {
+            $user->update(['failed_login_attempts' => 0, 'locked_until' => null]);
         }
 
         // Update last login
@@ -187,6 +206,71 @@ class AuthController extends Controller
                 'strength_description' => PasswordPolicyService::getStrengthDescription($validation['strength']),
                 'suggestion' => $validation['is_valid'] ? null : PasswordPolicyService::generateSuggestion()
             ]
+        ]);
+    }
+
+    /**
+     * Refresh authentication token
+     */
+    public function refreshToken(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        // Revoke old tokens
+        $user->tokens()->delete();
+        
+        // Create new token
+        $token = $user->createToken('auth-token')->plainTextToken;
+        
+        // Log token refresh
+        AuditService::logAuth('TOKEN_REFRESHED', $user, $request, [
+            'username' => $user->username,
+            'role' => $user->role->name ?? 'unknown'
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Token berhasil diperbarui',
+            'data' => [
+                'token' => $token
+            ]
+        ]);
+    }
+
+    /**
+     * Get security statistics
+     */
+    public function getSecurityStats(Request $request): JsonResponse
+    {
+        $stats = SecurityMonitoringService::getSecurityStats();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $stats
+        ]);
+    }
+
+    /**
+     * Unlock user account (admin only)
+     */
+    public function unlockAccount(Request $request, int $userId): JsonResponse
+    {
+        $user = User::findOrFail($userId);
+        
+        SecurityMonitoringService::unlockAccount($user);
+        
+        // Log admin action
+        AuditService::logSecurity('ACCOUNT_UNLOCKED_BY_ADMIN', [
+            'target_user_id' => $userId,
+            'target_username' => $user->username,
+            'admin_user_id' => $request->user()->id,
+            'admin_username' => $request->user()->username,
+            'timestamp' => now()->toISOString()
+        ], $request->user(), $request);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Akun berhasil dibuka'
         ]);
     }
 }
