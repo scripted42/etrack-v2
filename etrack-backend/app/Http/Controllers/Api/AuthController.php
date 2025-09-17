@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\AuditLog;
 use App\Services\AuditService;
+use App\Services\PasswordPolicyService;
+use App\Rules\StrongPassword;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -119,7 +121,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8|confirmed',
+            'new_password' => ['required', 'string', 'confirmed', new StrongPassword],
         ]);
 
         if ($validator->fails()) {
@@ -154,6 +156,37 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Password berhasil diubah'
+        ]);
+    }
+
+    /**
+     * Validate password strength
+     */
+    public function validatePassword(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validation = PasswordPolicyService::validatePassword($request->password);
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'is_valid' => $validation['is_valid'],
+                'errors' => $validation['errors'],
+                'strength' => $validation['strength'],
+                'strength_description' => PasswordPolicyService::getStrengthDescription($validation['strength']),
+                'suggestion' => $validation['is_valid'] ? null : PasswordPolicyService::generateSuggestion()
+            ]
         ]);
     }
 }

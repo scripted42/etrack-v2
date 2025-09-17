@@ -9,7 +9,8 @@ import {
   SettingOutlined,
   LogoutOutlined,
   BookOutlined,
-  BankOutlined
+  BankOutlined,
+  KeyOutlined
 } from '@ant-design/icons-vue';
 
 export interface menu {
@@ -80,6 +81,11 @@ const sidebarItem: menu[] = [
     title: 'Profil',
     icon: UserOutlined,
     to: '/profile'
+  },
+  {
+    title: 'Ubah Password',
+    icon: KeyOutlined,
+    to: '/change-password'
   },
   {
     title: 'Pengaturan',

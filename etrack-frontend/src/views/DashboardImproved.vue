@@ -335,6 +335,16 @@
         </v-col>
       </v-row>
 
+      <!-- Charts Section -->
+      <v-row class="mb-6">
+        <v-col cols="12" md="6">
+          <DashboardStatsChart />
+        </v-col>
+        <v-col cols="12" md="6">
+          <StudentGrowthChart />
+        </v-col>
+      </v-row>
+
       <!-- Trend dan Rekomendasi -->
       <v-row>
         <v-col cols="12" md="6">
@@ -410,6 +420,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { fetchDashboardStats } from '@/services/dashboard';
+import DashboardStatsChart from '@/components/charts/DashboardStatsChart.vue';
+import StudentGrowthChart from '@/components/charts/StudentGrowthChart.vue';
 
 // State
 const loading = ref(true);

@@ -49,6 +49,11 @@ const MainRoutes = {
       name: 'Settings',
       path: '/settings',
       component: () => import('@/views/StarterPage.vue')
+    },
+    {
+      name: 'ChangePassword',
+      path: '/change-password',
+      component: () => import('@/views/authentication/ChangePassword.vue')
     }
   ]
 };
