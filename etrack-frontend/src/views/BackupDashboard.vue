@@ -224,8 +224,10 @@
                       size="small"
                       variant="outlined"
                       color="primary"
-                      @click="downloadBackup(item.filename)"
+                      @click="downloadBackupFile(item.filename)"
                       prepend-icon="mdi-download"
+                      :loading="downloadingBackup === item.filename"
+                      :disabled="downloadingBackup === item.filename"
                     >
                       Download
                     </v-btn>
@@ -525,6 +527,7 @@ const creatingBackup = ref(false);
 const testingBackup = ref(false);
 const restoringBackup = ref(false);
 const deletingBackup = ref(false);
+const downloadingBackup = ref<string | null>(null);
 const backups = ref<BackupFile[]>([]);
 const statistics = ref<BackupStatistics | null>(null);
 const config = ref<BackupConfig | null>(null);
@@ -685,17 +688,31 @@ async function deleteBackup() {
 
 async function downloadBackupFile(filename: string) {
   try {
+    downloadingBackup.value = filename;
+    console.log('Starting download for:', filename);
+    
     const blob = await downloadBackup(filename);
+    console.log('Blob received:', blob);
+    
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    
+    // Cleanup
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }, 100);
+    
+    console.log('Download completed for:', filename);
   } catch (error) {
     console.error('Error downloading backup:', error);
+    alert(`Gagal mengunduh backup: ${error.message || 'Terjadi kesalahan'}`);
+  } finally {
+    downloadingBackup.value = null;
   }
 }
 
