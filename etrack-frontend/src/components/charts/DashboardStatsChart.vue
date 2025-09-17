@@ -132,32 +132,7 @@ const fetchData = async () => {
     loading.value = true
     error.value = ''
     
-    // Fetch dashboard data
-    const response = await api.get('/dashboard')
-    
-    if (response.data.success) {
-      const data = response.data.data
-      
-      // Update statistics
-      statistics.value[0].value = data.total_students || 0
-      statistics.value[1].value = data.total_employees || 0
-      statistics.value[2].value = data.active_students || 0
-      statistics.value[3].value = data.active_employees || 0
-      
-      // Update chart data
-      chartData.value.datasets[0].data = [
-        data.total_students || 0,
-        data.total_employees || 0
-      ]
-      
-      await nextTick()
-      createChart()
-    }
-    
-  } catch (err: any) {
-    console.error('Error fetching dashboard data:', err)
-    
-    // Use sample data if API fails
+    // Use sample data for demonstration
     statistics.value[0].value = 150
     statistics.value[1].value = 25
     statistics.value[2].value = 145
@@ -165,8 +140,13 @@ const fetchData = async () => {
     
     chartData.value.datasets[0].data = [150, 25]
     
+    // Wait for DOM update
     await nextTick()
     createChart()
+    
+  } catch (err: any) {
+    console.error('Error fetching dashboard data:', err)
+    error.value = err.message || 'Gagal memuat data chart'
   } finally {
     loading.value = false
   }

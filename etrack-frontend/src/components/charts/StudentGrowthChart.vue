@@ -127,7 +127,6 @@ const fetchData = async () => {
     error.value = ''
     
     // Generate sample data for demonstration
-    // In real implementation, this would come from API
     const currentYear = new Date().getFullYear()
     const years = []
     const totalStudents = []
@@ -167,6 +166,7 @@ const fetchData = async () => {
       ]
     }
     
+    // Wait for DOM update
     await nextTick()
     createChart()
     
