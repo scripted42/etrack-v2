@@ -132,21 +132,34 @@ const fetchData = async () => {
     loading.value = true
     error.value = ''
     
-    // Use sample data for demonstration
-    statistics.value[0].value = 150
-    statistics.value[1].value = 25
-    statistics.value[2].value = 145
-    statistics.value[3].value = 23
+    // Fetch real data from API
+    const response = await api.get('/dashboard')
     
-    chartData.value.datasets[0].data = [150, 25]
-    
-    // Wait for DOM update
-    await nextTick()
-    createChart()
+    if (response.data.success) {
+      const data = response.data.data
+      
+      // Update statistics with real data
+      statistics.value[0].value = data.total_students || 0
+      statistics.value[1].value = data.total_employees || 0
+      statistics.value[2].value = data.active_students || 0
+      statistics.value[3].value = data.active_employees || 0
+      
+      // Update chart data with real data
+      chartData.value.datasets[0].data = [
+        data.total_students || 0,
+        data.total_employees || 0
+      ]
+      
+      // Wait for DOM update
+      await nextTick()
+      createChart()
+    } else {
+      throw new Error('Failed to fetch dashboard data')
+    }
     
   } catch (err: any) {
     console.error('Error fetching dashboard data:', err)
-    error.value = err.message || 'Gagal memuat data chart'
+    error.value = err.response?.data?.message || err.message || 'Gagal memuat data chart'
   } finally {
     loading.value = false
   }

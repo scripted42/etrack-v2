@@ -126,53 +126,95 @@ const fetchData = async () => {
     loading.value = true
     error.value = ''
     
-    // Generate sample data for demonstration
-    const currentYear = new Date().getFullYear()
-    const years = []
-    const totalStudents = []
-    const newStudents = []
+    // Fetch real data from API
+    const response = await api.get('/dashboard')
     
-    for (let i = 5; i >= 0; i--) {
-      const year = currentYear - i
-      years.push(year.toString())
+    if (response.data.success) {
+      const data = response.data.data
       
-      // Simulate data growth
-      const baseTotal = 200 + (5 - i) * 50
-      const baseNew = 30 + (5 - i) * 10
-      
-      totalStudents.push(baseTotal + Math.random() * 20)
-      newStudents.push(baseNew + Math.random() * 10)
-    }
-    
-    chartData.value = {
-      labels: years,
-      datasets: [
-        {
-          label: 'Total Siswa',
-          data: totalStudents,
-          borderColor: 'rgb(75, 192, 192)',
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          tension: 0.4,
-          fill: true
-        },
-        {
-          label: 'Siswa Baru',
-          data: newStudents,
-          borderColor: 'rgb(255, 99, 132)',
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          tension: 0.4,
-          fill: true
+      // Process student growth data
+      if (data.student_growth) {
+        const years = data.student_growth.years || []
+        const totalStudents = data.student_growth.total_students || []
+        const newStudents = data.student_growth.new_students || []
+        
+        chartData.value = {
+          labels: years,
+          datasets: [
+            {
+              label: 'Total Siswa',
+              data: totalStudents,
+              borderColor: 'rgb(75, 192, 192)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Siswa Baru',
+              data: newStudents,
+              borderColor: 'rgb(255, 99, 132)',
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
         }
-      ]
+      } else {
+        // Fallback: generate data from current student count
+        const currentYear = new Date().getFullYear()
+        const years = []
+        const totalStudents = []
+        const newStudents = []
+        
+        // Get current student count from dashboard data
+        const currentTotal = data.total_students || 0
+        
+        for (let i = 5; i >= 0; i--) {
+          const year = currentYear - i
+          years.push(year.toString())
+          
+          // Estimate growth based on current data
+          const growthFactor = 1 + (5 - i) * 0.1
+          const estimatedTotal = Math.round(currentTotal * growthFactor)
+          const estimatedNew = Math.round(estimatedTotal * 0.2)
+          
+          totalStudents.push(estimatedTotal)
+          newStudents.push(estimatedNew)
+        }
+        
+        chartData.value = {
+          labels: years,
+          datasets: [
+            {
+              label: 'Total Siswa',
+              data: totalStudents,
+              borderColor: 'rgb(75, 192, 192)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Siswa Baru',
+              data: newStudents,
+              borderColor: 'rgb(255, 99, 132)',
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        }
+      }
+      
+      // Wait for DOM update
+      await nextTick()
+      createChart()
+    } else {
+      throw new Error('Failed to fetch dashboard data')
     }
-    
-    // Wait for DOM update
-    await nextTick()
-    createChart()
     
   } catch (err: any) {
     console.error('Error fetching chart data:', err)
-    error.value = err.message || 'Gagal memuat data chart'
+    error.value = err.response?.data?.message || err.message || 'Gagal memuat data chart'
   } finally {
     loading.value = false
   }

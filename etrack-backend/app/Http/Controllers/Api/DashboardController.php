@@ -36,6 +36,8 @@ class DashboardController extends Controller
             // 1. KAPASITAS SEKOLAH & UTILISASI
             $totalStudents = Student::count();
             $totalEmployees = Employee::count();
+            $activeStudents = Student::where('status', 'aktif')->count();
+            $activeEmployees = Employee::where('status', 'aktif')->count();
             $totalUsers = User::count();
             $activeUsers = User::where('status', 'aktif')->count();
             
@@ -80,6 +82,8 @@ class DashboardController extends Controller
                     'kpi' => [
                         'total_students' => $totalStudents,
                         'total_employees' => $totalEmployees,
+                        'active_students' => $activeStudents,
+                        'active_employees' => $activeEmployees,
                         'utilization_rate' => $utilizationRate,
                         'max_capacity' => $maxCapacity,
                         'teacher_student_ratio' => $teacherStudentRatio
@@ -103,6 +107,9 @@ class DashboardController extends Controller
                         'growth_trend' => $growthTrend,
                         'monthly_stats' => $this->getMonthlyStatistics()
                     ],
+                    
+                    // STUDENT GROWTH DATA FOR CHARTS
+                    'student_growth' => $this->getStudentGrowthData(),
                     
                     // SISTEM & KEAMANAN
                     'system' => [
@@ -586,6 +593,37 @@ class DashboardController extends Controller
         if ($ratio <= 0.2) return 80;
         if ($ratio <= 0.5) return 60;
         return 40;
+    }
+
+    /**
+     * Get student growth data for charts
+     */
+    private function getStudentGrowthData(): array
+    {
+        $currentYear = Carbon::now()->year;
+        $years = [];
+        $totalStudents = [];
+        $newStudents = [];
+        
+        // Get data for last 6 years
+        for ($i = 5; $i >= 0; $i--) {
+            $year = $currentYear - $i;
+            $years[] = $year;
+            
+            // Count total students created up to this year
+            $totalCount = Student::whereYear('created_at', '<=', $year)->count();
+            $totalStudents[] = $totalCount;
+            
+            // Count new students in this year
+            $newCount = Student::whereYear('created_at', $year)->count();
+            $newStudents[] = $newCount;
+        }
+        
+        return [
+            'years' => $years,
+            'total_students' => $totalStudents,
+            'new_students' => $newStudents
+        ];
     }
 
     /**
