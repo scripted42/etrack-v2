@@ -12,7 +12,8 @@ import {
   BankOutlined,
   KeyOutlined,
   SafetyOutlined,
-  ExportOutlined
+  ExportOutlined,
+  CameraOutlined,
 } from '@ant-design/icons-vue';
 
 export interface menu {
@@ -39,6 +40,25 @@ const sidebarItem: menu[] = [
     icon: DashboardOutlined,
     to: '/dashboard',
     permission: 'view_dashboard'
+  },
+  { header: 'Absensi' },
+  {
+    title: 'Absensi Wajah',
+    icon: CameraOutlined,
+    to: '/face-attendance',
+    permission: 'attendance_access'
+  },
+  {
+    title: 'Registrasi Wajah',
+    icon: CameraOutlined,
+    to: '/face-registration',
+    permission: 'manage_employees'
+  },
+  {
+    title: 'Riwayat Absensi Wajah',
+    icon: HistoryOutlined,
+    to: '/face-attendance-history',
+    permission: 'view_attendance_history'
   },
   { header: 'Manajemen Data' },
   {
@@ -78,12 +98,12 @@ const sidebarItem: menu[] = [
       to: '/backup',
       permission: 'view_backups'
     },
-    {
-      title: 'Export Data',
-      icon: ExportOutlined,
-      to: '/export-data',
-      permission: 'view_reports'
-    },
+       {
+         title: 'Export Data',
+         icon: ExportOutlined,
+         to: '/export-data',
+         permission: 'view_reports'
+       },
     {
       title: 'Role Management',
       icon: SafetyOutlined,

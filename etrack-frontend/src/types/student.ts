@@ -6,7 +6,6 @@ export interface Student {
   kelas: string;
   status: 'aktif' | 'lulus' | 'pindah';
   photo_path?: string;
-  qr_value?: string;
   created_at: string;
   updated_at: string;
   user?: {
@@ -49,6 +48,8 @@ export interface Student {
     no_hp?: string;
   }>;
 }
+
+
 
 
 

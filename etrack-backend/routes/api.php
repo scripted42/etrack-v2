@@ -31,6 +31,15 @@ use App\Http\Controllers\Api\DataQualityController;
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:5,1'); // 5 attempts per minute
 
+// Public QR code display (for lobby screens)
+Route::get('/attendance/qr-code', [App\Http\Controllers\Api\AttendanceController::class, 'getQrCode'])
+    ->middleware('throttle:30,1'); // 30 requests per minute
+
+// Test route untuk debugging auth
+Route::get('/test-auth', function () {
+    return response()->json(['message' => 'Test endpoint berhasil', 'time' => now()]);
+});
+
 // Protected routes with rate limiting
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     // Auth routes
@@ -41,6 +50,14 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
     Route::get('/security-stats', [AuthController::class, 'getSecurityStats']);
     Route::post('/unlock-account/{userId}', [AuthController::class, 'unlockAccount']);
+
+    // MFA routes
+    Route::get('/mfa/status', [App\Http\Controllers\Api\MFAController::class, 'getMFAStatus']);
+    Route::post('/mfa/enable', [App\Http\Controllers\Api\MFAController::class, 'enableMFA']);
+    Route::post('/mfa/disable', [App\Http\Controllers\Api\MFAController::class, 'disableMFA']);
+    Route::post('/mfa/request-otp', [App\Http\Controllers\Api\MFAController::class, 'requestOTP']);
+    Route::post('/mfa/verify-otp', [App\Http\Controllers\Api\MFAController::class, 'verifyOTP']);
+    Route::get('/mfa/statistics', [App\Http\Controllers\Api\MFAController::class, 'getStatistics']);
 
     // Dashboard routes
     Route::get('/dashboard', [DashboardController::class, 'index']);
@@ -103,4 +120,16 @@ Route::post('/employees/{employee}/photo', [EmployeeController::class, 'updatePh
     Route::get('/data-quality/recommendations', [DataQualityController::class, 'getRecommendations']);
     Route::get('/data-quality/completeness', [DataQualityController::class, 'calculateCompleteness']);
     Route::apiResource('permissions', PermissionController::class);
+
+    // Attendance routes
+    Route::post('/attendance/process', [App\Http\Controllers\Api\AttendanceController::class, 'processAttendance']);
+    Route::get('/attendance/history', [App\Http\Controllers\Api\AttendanceController::class, 'getAttendanceHistory']);
+    Route::get('/attendance/dashboard', [App\Http\Controllers\Api\AttendanceController::class, 'getAttendanceDashboard']);
+    Route::get('/attendance/schedule', [App\Http\Controllers\Api\AttendanceController::class, 'getAttendanceSchedule']);
+    
+    // Face Recognition Attendance routes
+    Route::post('/attendance/face-recognition', [App\Http\Controllers\Api\FaceAttendanceController::class, 'processFaceAttendance']);
+    Route::get('/attendance/face-recognition/history', [App\Http\Controllers\Api\FaceAttendanceController::class, 'getFaceAttendanceHistory']);
+    Route::post('/attendance/face-recognition/register-face', [App\Http\Controllers\Api\FaceAttendanceController::class, 'registerFace']);
+    Route::get('/attendance/face-recognition/statistics', [App\Http\Controllers\Api\FaceAttendanceController::class, 'getStatistics']);
 });

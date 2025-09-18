@@ -133,11 +133,9 @@
                 <v-col cols="12" md="3">
                   <v-btn
                     color="info"
-                    variant="elevated"
                     block
                     @click="refreshData"
                     :loading="loading"
-                    prepend-icon="mdi-refresh"
                     size="default"
                   >
                     Refresh Data

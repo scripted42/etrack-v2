@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Camera Capture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 20px auto;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .start-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .capture-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .stop-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        #capturedImage {
+            max-width: 100%;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Camera Capture</h1>
+    
+    <div class="controls">
+        <button id="startBtn" class="start-btn">Start Camera</button>
+        <button id="captureBtn" class="capture-btn" disabled>Capture Photo</button>
+        <button id="stopBtn" class="stop-btn" disabled>Stop Camera</button>
+    </div>
+    
+    <div id="status" class="status info">Ready to start camera</div>
+    
+    <div class="camera-container">
+        <video id="video" autoplay muted playsinline></video>
+        <canvas id="canvas"></canvas>
+    </div>
+    
+    <div id="result">
+        <h3>Captured Photo:</h3>
+        <img id="capturedImage" style="display: none;">
+        <div id="photoInfo"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const startBtn = document.getElementById('startBtn');
+        const captureBtn = document.getElementById('captureBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const status = document.getElementById('status');
+        const capturedImage = document.getElementById('capturedImage');
+        const photoInfo = document.getElementById('photoInfo');
+        
+        let mediaStream = null;
+        let isCameraReady = false;
+
+        function updateStatus(message, type = 'info') {
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function updateButtons(start, capture, stop) {
+            startBtn.disabled = !start;
+            captureBtn.disabled = !capture;
+            stopBtn.disabled = !stop;
+        }
+
+        async function startCamera() {
+            try {
+                updateStatus('Requesting camera access...', 'info');
+                
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    }
+                });
+
+                video.srcObject = mediaStream;
+                
+                video.onloadedmetadata = () => {
+                    console.log('Video metadata loaded');
+                    setupCanvas();
+                    isCameraReady = true;
+                    updateStatus('Camera ready!', 'success');
+                    updateButtons(false, true, true);
+                };
+
+                video.oncanplay = () => {
+                    console.log('Video can play');
+                    if (!isCameraReady) {
+                        setupCanvas();
+                        isCameraReady = true;
+                        updateStatus('Camera ready!', 'success');
+                        updateButtons(false, true, true);
+                    }
+                };
+
+            } catch (error) {
+                console.error('Camera error:', error);
+                updateStatus(`Camera error: ${error.message}`, 'error');
+                updateButtons(true, false, false);
+            }
+        }
+
+        function setupCanvas() {
+            if (!video || !canvas) {
+                console.error('Video or canvas element not found');
+                return;
+            }
+            
+            // Wait for video dimensions
+            if (video.videoWidth === 0 || video.videoHeight === 0) {
+                console.log('Video dimensions not ready, waiting...');
+                setTimeout(setupCanvas, 100);
+                return;
+            }
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            console.log('Canvas setup complete:', {
+                width: canvas.width,
+                height: canvas.height
+            });
+        }
+
+        function capturePhoto() {
+            try {
+                if (!video || !canvas) {
+                    throw new Error('Video or canvas element not found');
+                }
+
+                if (!isCameraReady) {
+                    throw new Error('Camera not ready');
+                }
+
+                if (video.readyState < 2) {
+                    throw new Error('Video not ready');
+                }
+
+                if (video.videoWidth === 0 || video.videoHeight === 0) {
+                    throw new Error('Video dimensions not available');
+                }
+
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    throw new Error('Canvas context not found');
+                }
+
+                // Set canvas size to match video
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                console.log('Capturing photo with dimensions:', video.videoWidth, 'x', video.videoHeight);
+
+                // Draw video frame to canvas
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Convert to base64
+                const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+                
+                console.log('Photo captured successfully, size:', dataURL.length);
+                
+                // Display captured image
+                capturedImage.src = dataURL;
+                capturedImage.style.display = 'block';
+                
+                // Show photo info
+                photoInfo.innerHTML = `
+                    <p><strong>Photo captured successfully!</strong></p>
+                    <p>Size: ${Math.round(dataURL.length / 1024)} KB</p>
+                    <p>Dimensions: ${canvas.width} x ${canvas.height}</p>
+                    <p>Format: JPEG (80% quality)</p>
+                `;
+                
+                updateStatus('Photo captured successfully!', 'success');
+
+            } catch (error) {
+                console.error('Capture error:', error);
+                updateStatus(`Capture error: ${error.message}`, 'error');
+            }
+        }
+
+        function stopCamera() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            
+            video.srcObject = null;
+            isCameraReady = false;
+            
+            updateStatus('Camera stopped', 'info');
+            updateButtons(true, false, false);
+            
+            // Clear captured image
+            capturedImage.style.display = 'none';
+            photoInfo.innerHTML = '';
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startCamera);
+        captureBtn.addEventListener('click', capturePhoto);
+        stopBtn.addEventListener('click', stopCamera);
+
+        // Initial state
+        updateButtons(true, false, false);
+    </script>
+</body>
+</html>

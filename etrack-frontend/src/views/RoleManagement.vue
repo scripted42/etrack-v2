@@ -59,8 +59,6 @@
           <div class="d-flex align-center" style="gap: 12px;">
             <v-btn
               color="primary"
-              variant="outlined"
-              prepend-icon="mdi-refresh"
               @click="refreshAllData"
               :loading="loading"
               size="default"
@@ -69,8 +67,6 @@
             </v-btn>
             <v-btn
               color="success"
-              variant="elevated"
-              prepend-icon="mdi-plus"
               @click="openRoleDialog()"
               size="default"
             >

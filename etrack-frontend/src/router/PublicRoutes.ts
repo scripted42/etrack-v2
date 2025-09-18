@@ -14,7 +14,7 @@ const PublicRoutes = {
       name: 'Error 404',
       path: '/error',
       component: () => import('@/views/pages/maintenance/error/Error404Page.vue')
-    }
+    },
   ]
 };
 

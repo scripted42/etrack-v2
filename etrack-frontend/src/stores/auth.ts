@@ -47,7 +47,11 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.setItem('user', JSON.stringify(payload.user));
         localStorage.setItem('authToken', payload.token);
 
-        return returnUrl.value || '/dashboard';
+        // Return response with MFA status
+        return {
+          returnUrl: returnUrl.value || '/dashboard',
+          mfa_required: payload.mfa_required || false
+        };
       } else {
         throw new Error('Login failed');
       }

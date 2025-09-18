@@ -102,16 +102,6 @@
           </div>
         </template>
 
-        <template #item.qr_value="{ item }">
-          <v-tooltip text="Klik untuk pratinjau QR">
-            <template #activator="{ props }">
-              <div v-bind="props" style="width:34px;height:34px;border:1px solid #eee;padding:2px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#f5f5f5;" @click="previewQr(item)">
-                <img v-if="qrThumb(item)" :src="qrThumb(item)" alt="QR" style="width:100%;height:100%;object-fit:contain;" @error="handleQrError" />
-                <span v-else style="font-size:12px;color:#999;">QR</span>
-              </div>
-            </template>
-          </v-tooltip>
-        </template>
 
         <template #item.actions="{ item }">
           <div class="d-flex justify-center align-center" style="gap:8px">
@@ -255,24 +245,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- QR Preview Dialog -->
-    <v-dialog v-model="qrPreview.open" max-width="340">
-      <v-card>
-        <v-card-title>Pratinjau QR</v-card-title>
-        <v-card-text class="d-flex justify-center">
-          <div v-if="qrPreview.url" style="width:280px;height:280px;border:1px solid #eee;padding:8px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;">
-            <img :src="qrPreview.url" alt="QR" style="width:100%;height:100%;object-fit:contain;" @error="handleQrPreviewError" />
-          </div>
-          <div v-else style="width:280px;height:280px;border:1px solid #eee;padding:8px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;color:#999;">
-            <span>QR Code tidak tersedia</span>
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="text" @click="qrPreview.open=false">Tutup</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
     <v-dialog v-model="dialog" max-width="900">
       <v-card>
@@ -286,13 +258,8 @@
                 <v-text-field density="comfortable" variant="outlined" class="mb-4" v-model="form.nama" label="Nama" required />
                 <v-select density="comfortable" variant="outlined" class="mb-4" v-model="form.kelas" :items="kelasOptions" label="Kelas" required />
                 <v-select density="comfortable" variant="outlined" class="mb-4" v-model="form.status" :items="statusOptions" label="Status" />
-                <v-text-field density="comfortable" variant="outlined" class="mb-4" v-model="form.qr_value" label="QR Value" hint="Default NIS" persistent-hint />
                 <v-row>
-                  <v-col cols="12" md="6" class="d-flex flex-column align-center justify-center">
-                    <img v-if="qrDataUrl" :src="qrDataUrl" alt="QR" style="width:120px;height:120px;border:1px solid #eee;padding:4px;border-radius:8px;" />
-                    <v-btn class="mt-2" @click="printQr" variant="outlined">Cetak QR</v-btn>
-                  </v-col>
-                  <v-col cols="12" md="6" class="d-flex flex-column align-center">
+                  <v-col cols="12" class="d-flex flex-column align-center">
                     <div
                       class="upload-avatar"
                       :class="{ 'has-image': photoPreview || form.photo_path }"
@@ -382,7 +349,6 @@
 import { ref, reactive, onMounted, watch, computed, nextTick } from 'vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import { fetchStudents, createStudent, updateStudent, deleteStudent, importStudentsCsv, type Student } from '@/services/students';
-import QRCode from 'qrcode';
 
 const page = ref({ title: 'Siswa' });
 const breadcrumbs = ref([
@@ -504,7 +470,6 @@ const headers = [
   { title: 'Nama', value: 'nama' },
   { title: 'Kelas', value: 'kelas' },
   { title: 'Status', value: 'status' },
-  { title: 'QR', value: 'qr_value' },
   { title: 'Aksi', value: 'actions', sortable: false, align: 'center', width: 120 }
 ];
 
@@ -547,7 +512,6 @@ const form = reactive<any>({
   nama: '',
   kelas: '',
   status: 'aktif',
-  qr_value: '',
   photo: null as any,
   username: '',
   password: '',
@@ -576,7 +540,6 @@ const hubunganOptions = [
   { title: 'Lainnya', value: 'Lainnya' }
 ];
 
-const qrDataUrl = ref<string>('');
 const photoPreview = ref<string>('');
 const fileInput = ref<HTMLInputElement>();
 
@@ -621,54 +584,12 @@ function toPublicUrl(path: string) {
   const url = `${base}/${path}`;
   return url;
 }
-function qrThumb(item: any) { 
-  const qrValue = item?.qr_value || item?.nis || '';
-  if (!qrValue) return '/src/assets/images/no-qr.png'; // fallback image
-  ensureQrThumb(qrValue); 
-  return qrDataUrlFrom(qrValue); 
-}
-const qrPreview = reactive<{ open: boolean; url: string }>({ open: false, url: '' });
-async function previewQr(item: any) {
-  const qrValue = item?.qr_value || item?.nis || '';
-  if (!qrValue) {
-    alert('QR Code tidak tersedia untuk siswa ini');
-    return;
-  }
-  await ensureQrLarge(qrValue);
-  qrPreview.url = qrLargeCache[qrValue];
-  qrPreview.open = true;
-}
-function qrDataUrlFrom(val: string) { return qrCache[val] || ''; }
-const qrCache: Record<string,string> = {};
-const qrLargeCache: Record<string,string> = {};
-
-function handleQrError(event: Event) {
-  console.error('QR image failed to load:', event);
-  // Hide the broken image
-  const img = event.target as HTMLImageElement;
-  img.style.display = 'none';
-}
-
-function handleQrPreviewError(event: Event) {
-  console.error('QR preview image failed to load:', event);
-  // Close the preview dialog
-  qrPreview.open = false;
-  alert('Gagal memuat QR Code preview');
-}
-
 function syncQr() {
-  // QR otomatis mengikuti NIS
-  form.qr_value = form.nis;
   if (!form.username) form.username = form.nis;
   const tgl = (form.identity?.tanggal_lahir || '').toString();
   const thn = tgl ? String(new Date(tgl).getFullYear() || '') : '';
   if (!editId.value) form.password = `${form.nis}${thn}`;
 }
-
-watch(() => form.qr_value, async (val) => {
-  if (!val) { qrDataUrl.value = ''; return; }
-  qrDataUrl.value = await QRCode.toDataURL(String(val), { width: 160, margin: 1 });
-});
 
 watch(() => form.photo, async (file: File | null) => {
   if (!file) { photoPreview.value = ''; return; }
@@ -695,26 +616,6 @@ function handleDrop(event: DragEvent) {
   }
 }
 
-// Generate small QR thumbnails for table (cache for performance)
-async function ensureQrThumb(val: string) {
-  if (!val || qrCache[val]) return;
-  try {
-    qrCache[val] = await QRCode.toDataURL(String(val), { width: 64, margin: 0 });
-  } catch (error) {
-    console.error('Error generating QR thumbnail:', error);
-    qrCache[val] = ''; // fallback to empty string
-  }
-}
-
-async function ensureQrLarge(val: string) {
-  if (!val || qrLargeCache[val]) return;
-  try {
-    qrLargeCache[val] = await QRCode.toDataURL(String(val), { width: 280, margin: 1 });
-  } catch (error) {
-    console.error('Error generating QR large:', error);
-    qrLargeCache[val] = ''; // fallback to empty string
-  }
-}
 
 watch(() => form.identity.tanggal_lahir, () => {
   // update default password bila NIS sudah terisi
@@ -723,7 +624,7 @@ watch(() => form.identity.tanggal_lahir, () => {
 
 function openCreate() {
   editId.value = null;
-  Object.assign(form, { nis: '', nama: '', kelas: '', status: 'aktif', qr_value: '', photo: null, photo_path: '', identity: { nik: '', nisn: '', tempat_lahir: '', tanggal_lahir: '', jenis_kelamin: '', agama: '' }, contact: { alamat: '', kota: '', provinsi: '', kode_pos: '', no_hp: '', email: '' }, wali: [] });
+  Object.assign(form, { nis: '', nama: '', kelas: '', status: 'aktif', photo: null, photo_path: '', identity: { nik: '', nisn: '', tempat_lahir: '', tanggal_lahir: '', jenis_kelamin: '', agama: '' }, contact: { alamat: '', kota: '', provinsi: '', kode_pos: '', no_hp: '', email: '' }, wali: [] });
   photoPreview.value = '';
   dialog.value = true;
 }
@@ -735,7 +636,6 @@ async function openEdit(item: Student) {
     nama: (item as any).nama,
     kelas: (item as any).kelas,
     status: (item as any).status,
-    qr_value: (item as any).qr_value,
     photo: null,
     photo_path: (item as any).photo_path || '',
     identity: (item as any).identity ?? { nik: '', nisn: '', tempat_lahir: '', tanggal_lahir: '', jenis_kelamin: '', agama: '' },
@@ -744,8 +644,6 @@ async function openEdit(item: Student) {
   });
   photoPreview.value = '';
   dialog.value = true;
-  // refresh QR preview
-  qrDataUrl.value = form.qr_value ? await QRCode.toDataURL(String(form.qr_value), { width: 160, margin: 1 }) : '';
 }
 
 async function save() {
@@ -855,10 +753,6 @@ async function load() {
 
     // Pagination debug info
 
-    // Pre-generate QR thumbs
-    for (const s of students.value as any[]) { 
-      await ensureQrThumb(s.qr_value); 
-    }
     
     // Force DOM update
     await nextTick();
@@ -903,14 +797,6 @@ function addWali() {
   form.wali.push({ nama: '', hubungan: '', pekerjaan: '', no_hp: '', alamat: '' });
 }
 
-function printQr() {
-  const w = window.open('', '_blank');
-  if (!w) return;
-  w.document.write(`<img src="${qrDataUrl.value}" style="width:240px;height:240px" />`);
-  w.document.close();
-  w.focus();
-  w.print();
-}
 
 onMounted(load);
 
@@ -1097,11 +983,6 @@ function downloadTemplate() {
     min-width: 500px;
   }
   
-  /* Hide QR Code column on very small screens */
-  .v-data-table :deep(.v-table th:nth-child(5)),
-  .v-data-table :deep(.v-table td:nth-child(5)) {
-    display: none;
-  }
   
   .pagination-controls {
     gap: 2px;

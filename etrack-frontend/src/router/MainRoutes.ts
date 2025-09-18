@@ -26,6 +26,21 @@ const MainRoutes = {
       component: () => import('@/views/StarterPage.vue')
     },
     {
+      name: 'FaceAttendance',
+      path: '/face-attendance',
+      component: () => import('@/views/FaceAttendance.vue')
+    },
+    {
+      name: 'FaceRegistration',
+      path: '/face-registration',
+      component: () => import('@/views/FaceRegistration.vue')
+    },
+    {
+      name: 'FaceAttendanceHistory',
+      path: '/face-attendance-history',
+      component: () => import('@/views/FaceAttendanceHistory.vue')
+    },
+    {
       name: 'AuditLogs',
       path: '/audit-logs',
       component: () => import('@/views/AuditTrailSimple.vue')
@@ -55,11 +70,11 @@ const MainRoutes = {
       path: '/change-password',
       component: () => import('@/views/authentication/ChangePassword.vue')
     },
-    {
-      name: 'ExportData',
-      path: '/export-data',
-      component: () => import('@/views/ExportData.vue')
-    },
+          {
+            name: 'ExportData',
+            path: '/export-data',
+            component: () => import('@/views/ExportData.vue')
+          },
     {
       name: 'RoleManagement',
       path: '/role-management',

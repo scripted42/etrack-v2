@@ -126,20 +126,52 @@ const handleLogin = async () => {
   loading.value = true;
 
   try {
-    const returnUrl = await authStore.login(form.username, form.password);
-    router.push(returnUrl);
+    const response = await authStore.login(form.username, form.password);
+    
+    // Check if MFA is required
+    if (response.mfa_required) {
+      router.push('/mfa-verification');
+      return;
+    }
+    
+    router.push(response.returnUrl || '/dashboard');
   } catch (error: any) {
     console.error('Login error:', error);
     
-    if (error.response?.data?.errors) {
-      // Handle validation errors
-      const errorData = error.response.data.errors;
-      if (errorData.username) errors.username = errorData.username;
-      if (errorData.password) errors.password = errorData.password;
-    } else {
-      // Handle general error
-      errorMessage.value = error.response?.data?.message || 'Terjadi kesalahan saat login. Silakan coba lagi.';
+    // Handle network errors (backend tidak berjalan)
+    if (!error.response) {
+      errorMessage.value = 'Gagal terhubung ke server. Pastikan backend Laravel sedang berjalan.';
+      return;
     }
+    
+    // Handle rate limiting (429)
+    if (error.response.status === 429) {
+      errorMessage.value = 'Terlalu banyak percobaan login. Tunggu 1 menit sebelum mencoba lagi.';
+      return;
+    }
+    
+    // Handle validation errors (422)
+    if (error.response.status === 422 && error.response.data?.errors) {
+      const errorData = error.response.data.errors;
+      if (errorData.username) {
+        errors.username = errorData.username;
+        errorMessage.value = errorData.username[0];
+      }
+      if (errorData.password) {
+        errors.password = errorData.password;
+        errorMessage.value = errorData.password[0];
+      }
+      return;
+    }
+    
+    // Handle server errors (500)
+    if (error.response.status >= 500) {
+      errorMessage.value = 'Server error. Silakan coba lagi nanti.';
+      return;
+    }
+    
+    // Handle other errors
+    errorMessage.value = error.response?.data?.message || 'Terjadi kesalahan saat login. Silakan coba lagi.';
   } finally {
     loading.value = false;
   }

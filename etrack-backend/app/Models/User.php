@@ -32,6 +32,8 @@ class User extends Authenticatable
         'last_activity',
         'failed_login_attempts',
         'locked_until',
+        'mfa_enabled',
+        'mfa_secret',
     ];
 
     /**
@@ -57,6 +59,7 @@ class User extends Authenticatable
             'last_login' => 'datetime',
             'last_activity' => 'datetime',
             'locked_until' => 'datetime',
+            'mfa_enabled' => 'boolean',
         ];
     }
 
@@ -98,5 +101,39 @@ class User extends Authenticatable
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    /**
+     * Get the MFA OTPs for the user.
+     */
+    public function mfaOtps(): HasMany
+    {
+        return $this->hasMany(MfaOtp::class);
+    }
+
+    /**
+     * Check if MFA is enabled for the user.
+     */
+    public function isMfaEnabled(): bool
+    {
+        return $this->mfa_enabled;
+    }
+
+    /**
+     * Enable MFA for the user.
+     */
+    public function enableMfa(): void
+    {
+        $this->update(['mfa_enabled' => true]);
+    }
+
+    /**
+     * Disable MFA for the user.
+     */
+    public function disableMfa(): void
+    {
+        $this->update(['mfa_enabled' => false, 'mfa_secret' => null]);
+        // Delete all existing OTPs
+        $this->mfaOtps()->delete();
     }
 }

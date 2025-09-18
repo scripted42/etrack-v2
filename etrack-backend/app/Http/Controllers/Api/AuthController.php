@@ -95,6 +95,7 @@ class AuthController extends Controller
             'data' => [
                 'user' => $user->load('role'),
                 'token' => $token,
+                'mfa_required' => $user->isMfaEnabled(),
             ]
         ]);
     }

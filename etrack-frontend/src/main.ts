@@ -29,3 +29,4 @@ app.use(Antd);
 app.use(VueApexCharts);
 app.use(vuetify);
 app.mount('#app');
+
