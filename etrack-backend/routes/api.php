@@ -40,6 +40,26 @@ Route::get('/test-auth', function () {
     return response()->json(['message' => 'Test endpoint berhasil', 'time' => now()]);
 });
 
+// Test routes untuk face attendance (tanpa auth untuk testing)
+Route::get('/test-face-attendance', function () {
+    return response()->json([
+        'message' => 'Face Attendance System Ready',
+        'features' => [
+            'face_registration' => 'Register employee faces',
+            'face_attendance' => 'Process attendance with face recognition',
+            'attendance_history' => 'View attendance records',
+            'statistics' => 'Attendance analytics'
+        ],
+        'endpoints' => [
+            'POST /api/attendance/face-recognition' => 'Process face attendance',
+            'GET /api/attendance/face-recognition/history' => 'Get attendance history',
+            'POST /api/attendance/face-recognition/register-face' => 'Register face',
+            'GET /api/attendance/face-recognition/statistics' => 'Get statistics'
+        ],
+        'time' => now()
+    ]);
+});
+
 // Protected routes with rate limiting
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     // Auth routes
