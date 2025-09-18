@@ -174,6 +174,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import faceAttendanceService from '@/services/faceAttendance'
 
 const router = useRouter()
 
@@ -216,8 +217,7 @@ const headers = [
 const loadEmployees = async () => {
   try {
     loading.value = true
-    const response = await fetch('/api/employees')
-    const data = await response.json()
+    const data = await faceAttendanceService.getEmployees()
     
     if (data.success) {
       employees.value = data.data.map(employee => ({
@@ -360,20 +360,11 @@ const capturePhoto = async () => {
 
     console.log('Photo captured, size:', photoData.length)
 
-    // Send to backend
-    const response = await fetch('/api/attendance/face-recognition/register-face', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      },
-      body: JSON.stringify({
-        employee_id: selectedEmployee.value.id,
-        face_photo: photoData
-      })
+    // Send to backend using service
+    const result = await faceAttendanceService.registerFace({
+      employee_id: selectedEmployee.value.id,
+      photo: photoData
     })
-
-    const result = await response.json()
 
     if (result.success) {
       showSuccessDialog.value = true

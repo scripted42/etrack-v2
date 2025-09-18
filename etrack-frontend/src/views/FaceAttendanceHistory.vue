@@ -311,7 +311,7 @@ const loadData = async () => {
     if (filters.value.start_date) params.append('start_date', filters.value.start_date)
     if (filters.value.end_date) params.append('end_date', filters.value.end_date)
 
-    const response = await fetch(`/api/attendance/face-recognition/history?${params}`, {
+    const response = await fetch(`http://localhost:8000/api/attendance/face-recognition/history?${params}`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }
@@ -337,7 +337,7 @@ const loadData = async () => {
 
 const loadStatistics = async () => {
   try {
-    const response = await fetch('/api/attendance/face-recognition/statistics', {
+    const response = await fetch('http://localhost:8000/api/attendance/face-recognition/statistics', {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }
@@ -360,7 +360,7 @@ const loadStatistics = async () => {
 
 const loadEmployees = async () => {
   try {
-    const response = await fetch('/api/employees', {
+    const response = await fetch('http://localhost:8000/api/employees', {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }

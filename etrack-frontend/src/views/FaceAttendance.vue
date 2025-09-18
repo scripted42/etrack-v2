@@ -163,6 +163,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import faceAttendanceService from '@/services/faceAttendance'
 
 // Reactive variables
 const videoElement = ref<HTMLVideoElement>()
@@ -391,22 +392,13 @@ const processAttendance = async (employee: any) => {
       return
     }
     
-    // Call backend API to record attendance
-    const response = await fetch('/api/attendance/face-recognition', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      },
-      body: JSON.stringify({
-        employee_id: employee.id,
-        timestamp: new Date().toISOString(),
-        photo: photoData,
-        confidence: 0.95
-      })
+    // Call backend API to record attendance using service
+    const result = await faceAttendanceService.processAttendance({
+      employee_id: employee.id,
+      photo: photoData,
+      location: 'Sekolah',
+      attendance_type: 'on_time'
     })
-    
-    const result = await response.json()
     
     if (result.success) {
       showSuccess('Absensi Berhasil!', `Selamat datang, ${employee.name}`, employee)
